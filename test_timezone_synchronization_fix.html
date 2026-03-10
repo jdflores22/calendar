@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timezone Synchronization Test - Event 76</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #cce5ff; border-color: #b3d9ff; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .time-display { font-weight: bold; color: #0066cc; }
+        .expected { color: #28a745; }
+        .actual { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Timezone Synchronization Fix Verification</h1>
+    <p>Testing Event 76 time consistency across all interfaces after JavaScript timezone fixes</p>
+    
+    <div class="test-section info">
+        <h2>📊 Event 76 Database Information</h2>
+        <table>
+            <tr><th>Field</th><th>UTC Value (Database)</th><th>Philippines Time (Display)</th></tr>
+            <tr><td>Start Time</td><td>2026-02-12 02:20:00</td><td class="time-display">2026-02-12 10:20:00 PST</td></tr>
+            <tr><td>End Time</td><td>2026-02-12 03:20:00</td><td class="time-display">2026-02-12 11:20:00 PST</td></tr>
+        </table>
+    </div>
+    
+    <div class="test-section success">
+        <h2>✅ Expected Consistent Display (Philippines Time)</h2>
+        <table>
+            <tr><th>Interface</th><th>Expected Display</th><th>Format</th></tr>
+            <tr><td>Calendar Hover Tooltip</td><td class="expected">Wed, Feb 12 • 10:20 AM - 11:20 AM</td><td>Short format with time range</td></tr>
+            <tr><td>Calendar Event Details Modal</td><td class="expected">Wednesday, February 12, 2026 • 10:20 AM - 11:20 AM</td><td>Full format with time range</td></tr>
+            <tr><td>Event Details Page</td><td class="expected">Thursday, February 12, 2026 10:20 AM - 11:20 AM</td><td>Twig filter conversion</td></tr>
+            <tr><td>Event Edit Form</td><td class="expected">2026-02-12T10:20</td><td>datetime-local input</td></tr>
+            <tr><td>Event Index Page</td><td class="expected">Feb 12, 2026 10:20 AM</td><td>Short list format</td></tr>
+            <tr><td>Dashboard</td><td class="expected">10:20 AM</td><td>Time only</td></tr>
+        </table>
+    </div>
+    
+    <div class="test-section info">
+        <h2>🔧 JavaScript Fixes Applied</h2>
+        <h3>Problem Identified:</h3>
+        <p>The calendar JavaScript was using <code>toLocaleTimeString('en-US')</code> without specifying timezone, causing it to display times in the user's browser timezone instead of Philippines timezone.</p>
+        
+        <h3>Solution Applied:</h3>
+        <p>Added <code>timeZone: 'Asia/Manila'</code> to all JavaScript date formatting functions:</p>
+        <ul>
+            <li>✅ Event hover tooltips</li>
+            <li>✅ Event details modals</li>
+            <li>✅ Conflict detection displays</li>
+            <li>✅ Calendar header updates</li>
+            <li>✅ Export functions</li>
+        </ul>
+        
+        <h3>Code Changes:</h3>
+        <pre style="background-color: #f8f9fa; padding: 10px; border-radius: 5px;">
+// Before (Browser timezone):
+startDate.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+})
+
+// After (Philippines timezone):
+startDate.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Manila'  // ← Added this
+})
+        </pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧪 Manual Testing Steps</h2>
+        <ol>
+            <li><strong>Calendar Page Test:</strong>
+                <ul>
+                    <li>Go to <a href="http://127.0.0.4:8000/calendar" target="_blank">http://127.0.0.4:8000/calendar</a></li>
+                    <li>Find Event 76 (Trial Event) on February 12, 2026</li>
+                    <li>Hover over the event - should show <span class="expected">10:20 AM - 11:20 AM</span></li>
+                    <li>Click the event - modal should show <span class="expected">Wednesday, February 12, 2026 • 10:20 AM - 11:20 AM</span></li>
+                </ul>
+            </li>
+            <li><strong>Event Pages Test:</strong>
+                <ul>
+                    <li>Go to <a href="http://127.0.0.4:8000/events/76" target="_blank">Event Details</a> - should show <span class="expected">10:20 AM</span></li>
+                    <li>Go to <a href="http://127.0.0.4:8000/events/76/edit" target="_blank">Event Edit</a> - form should show <span class="expected">2026-02-12T10:20</span></li>
+                    <li>Go to <a href="http://127.0.0.4:8000/events" target="_blank">Event Index</a> - should show <span class="expected">Feb 12, 2026 10:20 AM</span></li>
+                </ul>
+            </li>
+            <li><strong>Dashboard Test:</strong>
+                <ul>
+                    <li>Go to <a href="http://127.0.0.4:8000/dashboard" target="_blank">Dashboard</a></li>
+                    <li>If Event 76 appears in recent events, should show <span class="expected">10:20 AM</span></li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔍 Browser Console Test</h2>
+        <p>Open browser console on any page and run these commands to verify timezone utilities:</p>
+        <pre style="background-color: #f8f9fa; padding: 10px; border-radius: 5px;">
+// Test system timezone configuration
+console.log('System Timezone:', window.SystemTimezone.getTimezone());
+console.log('Current Philippines Time:', window.SystemTimezone.now());
+
+// Test Event 76 time conversion
+const event76Start = new Date('2026-02-12T02:20:00Z'); // UTC from database
+console.log('Event 76 UTC:', event76Start.toISOString());
+console.log('Event 76 Philippines:', event76Start.toLocaleString('en-US', {
+    timeZone: 'Asia/Manila',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+}));
+// Should output: "February 12, 2026 at 10:20 AM"
+        </pre>
+    </div>
+    
+    <div class="test-section success">
+        <h2>✅ Success Criteria</h2>
+        <p><strong>All interfaces should now show the SAME time for Event 76:</strong></p>
+        <div style="text-align: center; font-size: 24px; font-weight: bold; color: #28a745; margin: 20px 0;">
+            10:20 AM - 11:20 AM (Philippines Time)
+        </div>
+        <p>If you see different times on different pages, the synchronization fix needs additional work.</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>🐛 If Times Still Don't Match</h2>
+        <p>Check these potential issues:</p>
+        <ul>
+            <li>Browser cache - Hard refresh (Ctrl+F5) the calendar page</li>
+            <li>JavaScript errors - Check browser console for errors</li>
+            <li>Timezone service - Verify PHP timezone conversion is working</li>
+            <li>Database data - Confirm Event 76 exists with correct UTC times</li>
+        </ul>
+    </div>
+    
+    <script>
+        // Auto-test timezone utilities if available
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.SystemTimezone) {
+                console.log('✅ SystemTimezone utilities available');
+                console.log('Current timezone:', window.SystemTimezone.getTimezone());
+                console.log('Current Philippines time:', window.SystemTimezone.now());
+            } else {
+                console.log('❌ SystemTimezone utilities not available (expected on this test page)');
+            }
+            
+            // Test Event 76 time display
+            const event76Start = new Date('2026-02-12T02:20:00Z');
+            const philippinesTime = event76Start.toLocaleString('en-US', {
+                timeZone: 'Asia/Manila',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+            
+            console.log('Event 76 should display as:', philippinesTime);
+            
+            if (philippinesTime === '10:20 AM') {
+                console.log('✅ Timezone conversion working correctly');
+            } else {
+                console.log('❌ Timezone conversion issue detected');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onclick Error Fix Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Simulate exact base template script loading -->
+    <script>
+        // Immediate global function definition - available before any other scripts
+        (function() {
+            // Store the function globally immediately
+            window.toggleMobileSidebar = function() {
+                const overlay = document.getElementById('mobile-sidebar-overlay');
+                const panel = document.getElementById('mobile-sidebar-panel');
+                
+                if (!overlay || !panel) {
+                    console.warn('Mobile sidebar elements not found');
+                    return;
+                }
+                
+                if (overlay.classList.contains('hidden')) {
+                    // Show sidebar
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => {
+                        panel.classList.remove('-translate-x-full');
+                    }, 10);
+                    document.body.classList.add('overflow-hidden');
+                } else {
+                    // Hide sidebar
+                    panel.classList.add('-translate-x-full');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 300);
+                    document.body.classList.remove('overflow-hidden');
+                }
+            };
+            
+            // Also make it available without window prefix for onclick attributes
+            window.toggleMobileSidebar.toString = function() {
+                return 'toggleMobileSidebar';
+            };
+            
+            // Make it available in global scope
+            if (typeof toggleMobileSidebar === 'undefined') {
+                window.toggleMobileSidebar = window.toggleMobileSidebar;
+            }
+        })();
+        
+        // Ensure function is available in global scope for onclick attributes
+        function toggleMobileSidebar() {
+            return window.toggleMobileSidebar();
+        }
+        
+        console.log('Head script loaded - Function available:', typeof toggleMobileSidebar === 'function');
+    </script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Mobile Sidebar Overlay (exact structure from base template) -->
+        <div id="mobile-sidebar-overlay" class="fixed inset-0 z-40 lg:hidden hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50" onclick="toggleMobileSidebar()"></div>
+            <div class="fixed inset-y-0 left-0 w-64 bg-slate-900 shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out" id="mobile-sidebar-panel">
+                <div class="flex flex-col h-full">
+                    <div class="flex items-center justify-end p-4 border-b border-slate-800">
+                        <button onclick="toggleMobileSidebar()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex-1 p-4">
+                        <h3 class="text-white text-lg font-semibold mb-4">Mobile Sidebar</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="block text-slate-300 hover:text-white py-2">Dashboard</a></li>
+                            <li><a href="#" class="block text-slate-300 hover:text-white py-2">Calendar</a></li>
+                            <li><a href="#" class="block text-slate-300 hover:text-white py-2">Events</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Navigation Bar (exact structure from base template) -->
+        <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-4">
+                        <!-- Mobile Sidebar Toggle - THIS IS WHERE THE ERROR OCCURS -->
+                        <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors duration-200">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-white font-semibold text-lg">TESDA Calendar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="p-8">
+            <h1 class="text-2xl font-bold mb-6">Onclick Error Fix Test</h1>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold mb-4">🔧 Error Reproduction & Fix Test</h2>
+                
+                <div class="space-y-4">
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <h3 class="text-sm font-semibold text-red-900 mb-2">Original Error:</h3>
+                        <code class="text-sm text-red-800">Uncaught ReferenceError: toggleMobileSidebar is not defined at HTMLButtonElement.onclick</code>
+                    </div>
+                    
+                    <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <h3 class="text-sm font-semibold text-green-900 mb-2">Fix Applied:</h3>
+                        <ul class="text-sm text-green-800 space-y-1">
+                            <li>• Function defined immediately in head section</li>
+                            <li>• Available both as global function and window property</li>
+                            <li>• Fallback script at end of body</li>
+                            <li>• IIFE wrapper for immediate execution</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="testResults" class="p-4 bg-gray-50 rounded-lg">
+                        <h3 class="font-semibold mb-2">Live Test Results:</h3>
+                        <div id="results"></div>
+                    </div>
+                    
+                    <div class="space-x-2">
+                        <button onclick="runTests()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            Run All Tests
+                        </button>
+                        <button onclick="simulateError()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                            Simulate Original Error
+                        </button>
+                    </div>
+                    
+                    <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h3 class="text-sm font-semibold text-blue-900 mb-2">Instructions:</h3>
+                        <ol class="text-sm text-blue-800 space-y-1">
+                            <li>1. Click the hamburger menu (☰) in the top navigation</li>
+                            <li>2. Sidebar should open without any JavaScript errors</li>
+                            <li>3. Check browser console for any error messages</li>
+                            <li>4. Try closing with X button, overlay click, or Escape key</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Body script loaded - Function available:', typeof toggleMobileSidebar === 'function');
+        
+        function runTests() {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+            
+            // Test 1: Function existence
+            if (typeof toggleMobileSidebar === 'function') {
+                results.innerHTML += '<div class="text-green-600">✅ toggleMobileSidebar function exists</div>';
+            } else {
+                results.innerHTML += '<div class="text-red-600">❌ toggleMobileSidebar function missing</div>';
+            }
+            
+            // Test 2: Window function existence
+            if (typeof window.toggleMobileSidebar === 'function') {
+                results.innerHTML += '<div class="text-green-600">✅ window.toggleMobileSidebar exists</div>';
+            } else {
+                results.innerHTML += '<div class="text-red-600">❌ window.toggleMobileSidebar missing</div>';
+            }
+            
+            // Test 3: Direct function call
+            try {
+                toggleMobileSidebar();
+                results.innerHTML += '<div class="text-green-600">✅ Direct function call successful</div>';
+            } catch (error) {
+                results.innerHTML += '<div class="text-red-600">❌ Direct call failed: ' + error.message + '</div>';
+            }
+            
+            // Test 4: Onclick simulation
+            try {
+                const testButton = document.createElement('button');
+                testButton.setAttribute('onclick', 'toggleMobileSidebar()');
+                testButton.click();
+                results.innerHTML += '<div class="text-green-600">✅ Onclick simulation successful</div>';
+            } catch (error) {
+                results.innerHTML += '<div class="text-red-600">❌ Onclick simulation failed: ' + error.message + '</div>';
+            }
+        }
+        
+        function simulateError() {
+            const results = document.getElementById('results');
+            
+            // Temporarily remove the function to simulate the error
+            const originalFunction = window.toggleMobileSidebar;
+            delete window.toggleMobileSidebar;
+            
+            try {
+                toggleMobileSidebar();
+                results.innerHTML += '<div class="text-yellow-600">⚠️ Error simulation failed - function still available</div>';
+            } catch (error) {
+                results.innerHTML += '<div class="text-red-600">❌ Simulated error: ' + error.message + '</div>';
+            }
+            
+            // Restore the function
+            window.toggleMobileSidebar = originalFunction;
+            results.innerHTML += '<div class="text-green-600">✅ Function restored</div>';
+        }
+        
+        // Enhanced functionality after DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            runTests();
+            
+            // Add keyboard support
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const overlay = document.getElementById('mobile-sidebar-overlay');
+                    if (overlay && !overlay.classList.contains('hidden')) {
+                        window.toggleMobileSidebar();
+                    }
+                }
+            });
+            
+            console.log('DOM loaded - Mobile sidebar function ready');
+        });
+    </script>
+    
+    <!-- Fallback mobile sidebar function - ensure it's always available -->
+    <script>
+        // Final fallback to ensure function is always available
+        if (typeof toggleMobileSidebar === 'undefined') {
+            window.toggleMobileSidebar = function() {
+                const overlay = document.getElementById('mobile-sidebar-overlay');
+                const panel = document.getElementById('mobile-sidebar-panel');
+                
+                if (!overlay || !panel) {
+                    console.warn('Mobile sidebar elements not found');
+                    return;
+                }
+                
+                if (overlay.classList.contains('hidden')) {
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => panel.classList.remove('-translate-x-full'), 10);
+                    document.body.classList.add('overflow-hidden');
+                } else {
+                    panel.classList.add('-translate-x-full');
+                    setTimeout(() => overlay.classList.add('hidden'), 300);
+                    document.body.classList.remove('overflow-hidden');
+                }
+            };
+            
+            function toggleMobileSidebar() {
+                return window.toggleMobileSidebar();
+            }
+            
+            console.log('Fallback function loaded');
+        } else {
+            console.log('Main function already available, fallback not needed');
+        }
+    </script>
+</body>
+</html>

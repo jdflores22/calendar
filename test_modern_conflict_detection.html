@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Conflict Detection with Badges</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Modern Conflict Detection System</h1>
+        
+        <!-- Modern Conflict Indicator Demo -->
+        <div class="bg-white rounded-lg shadow-xl p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">✨ Modern Conflict Indicator</h2>
+            
+            <div class="space-y-4">
+                <!-- Real-time conflict indicator -->
+                <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-red-800">Scheduling Conflict Detected</span>
+                            <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-500 ring-1 ring-inset ring-red-400/20">
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                2 conflicts
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="showDemoModal()" class="inline-flex items-center rounded-md bg-red-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">
+                        View Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modern Badge Examples -->
+        <div class="bg-white rounded-lg shadow-xl p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">🎨 Modern Tailwind Badges Used</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-gray-700">Conflict Status</h3>
+                    <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-500 ring-1 ring-inset ring-red-400/20">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        2 conflicts
+                    </span>
+                </div>
+                
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-gray-700">Override Status</h3>
+                    <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-600 ring-1 ring-inset ring-yellow-400/20">
+                        Can Override
+                    </span>
+                </div>
+                
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-gray-700">Priority Levels</h3>
+                    <div class="space-y-1">
+                        <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-600 ring-1 ring-inset ring-red-400/20">High</span>
+                        <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-600 ring-1 ring-inset ring-yellow-400/20">Medium</span>
+                        <span class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-600 ring-1 ring-inset ring-green-400/20">Low</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-gray-700">Office & Location</h3>
+                    <div class="space-y-1">
+                        <span class="inline-flex items-center rounded-md bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-600 ring-1 ring-inset ring-indigo-400/20">Main Office</span>
+                        <span class="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-400/20">📍 Room A</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Overview -->
+        <div class="bg-white rounded-lg shadow-xl p-6">
+            <h2 class="text-xl font-semibold mb-4">🚀 Modern Features Implemented</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <h3 class="font-semibold text-blue-800">Visual Enhancements:</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        <li><strong>Exclamation icons</strong> - Clear warning indicators</li>
+                        <li><strong>Modern badges</strong> - Tailwind's latest badge styles</li>
+                        <li><strong>Color-coded priorities</strong> - Red, yellow, green system</li>
+                        <li><strong>Ring borders</strong> - Subtle inset ring styling</li>
+                        <li><strong>Rounded corners</strong> - Modern border-radius</li>
+                        <li><strong>Proper spacing</strong> - Consistent padding/margins</li>
+                    </ul>
+                </div>
+                
+                <div class="space-y-3">
+                    <h3 class="font-semibold text-green-800">User Experience:</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        <li><strong>Immediate feedback</strong> - Real-time conflict detection</li>
+                        <li><strong>Detailed information</strong> - Complete event details</li>
+                        <li><strong>Role-based actions</strong> - Override for authorized users</li>
+                        <li><strong>Professional styling</strong> - Clean, modern appearance</li>
+                        <li><strong>Accessible design</strong> - Clear contrast and icons</li>
+                        <li><strong>Responsive layout</strong> - Works on all devices</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Modal -->
+    <div id="demoModal" class="fixed inset-0 z-60 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900">Scheduling Conflict</h3>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-500 ring-1 ring-inset ring-red-400/20">
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                2 conflicts
+                            </span>
+                            <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-600 ring-1 ring-inset ring-yellow-400/20">
+                                Can Override
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <p class="text-sm text-slate-600 mb-4">This time slot conflicts with 2 existing events. Do you want to proceed?</p>
+                    
+                    <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                        <h4 class="text-sm font-semibold text-slate-700 mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" />
+                            </svg>
+                            Conflicting Events
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="bg-white rounded-lg p-3 border border-slate-200">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h5 class="font-medium text-slate-900 text-sm">Team Meeting</h5>
+                                        <div class="flex items-center space-x-2 mt-1">
+                                            <span class="text-xs text-slate-500">Feb 14, 10:30 AM - 11:30 AM</span>
+                                            <span class="inline-flex items-center rounded-md bg-blue-400/10 px-1.5 py-0.5 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-400/20">
+                                                📍 Conference Room A
+                                            </span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="inline-flex items-center rounded-md bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-600 ring-1 ring-inset ring-indigo-400/20">
+                                                Main Office
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-end space-y-1">
+                                        <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-600 ring-1 ring-inset ring-red-400/20">
+                                            High
+                                        </span>
+                                        <span class="inline-flex items-center rounded-md bg-slate-400/10 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-400/20">
+                                            Confirmed
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-3 border border-slate-200">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h5 class="font-medium text-slate-900 text-sm">Budget Review</h5>
+                                        <div class="flex items-center space-x-2 mt-1">
+                                            <span class="text-xs text-slate-500">Feb 14, 11:00 AM - 12:00 PM</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="inline-flex items-center rounded-md bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-600 ring-1 ring-inset ring-indigo-400/20">
+                                                Finance Department
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-end space-y-1">
+                                        <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-600 ring-1 ring-inset ring-yellow-400/20">
+                                            Medium
+                                        </span>
+                                        <span class="inline-flex items-center rounded-md bg-slate-400/10 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-400/20">
+                                            Tentative
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeDemoModal()" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        Proceed Anyway
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDemoModal() {
+            document.getElementById('demoModal').classList.remove('hidden');
+        }
+        
+        function closeDemoModal() {
+            document.getElementById('demoModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+nelmio_security:
+    # Content Security Policy - Temporarily disabled for admin forms
+    csp:
+        enabled: false

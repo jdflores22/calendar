@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Button Inline Style Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold mb-8">Delete Button with Inline Style</h1>
+        
+        <button onclick="showDeleteModal()" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mb-4">
+            Show Delete Modal
+        </button>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="fixed inset-0 hidden" style="z-index: 9000;">
+            <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeDeleteModal()" style="z-index: 8999;"></div>
+            <div class="fixed inset-0 flex items-center justify-center p-4" style="z-index: 9000;">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+                    <div class="px-6 py-4 border-b border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-slate-900">Delete Contact</h3>
+                            <button onclick="closeDeleteModal()" class="text-slate-400 hover:text-slate-600">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-slate-600">
+                                    Are you sure you want to delete <span id="deleteContactName" class="font-medium text-slate-900">Dr. Ana Maria Rodriguez</span>? This action cannot be undone and will permanently remove all contact information.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end space-x-3">
+                        <button onclick="closeDeleteModal()" 
+                                class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                            Cancel
+                        </button>
+                        <button onclick="confirmDelete()" id="deleteConfirmBtn"
+                                style="background-color: #dc2626 !important;"
+                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Delete Contact
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test different button styles -->
+        <div class="mt-8 space-y-4">
+            <h2 class="text-lg font-semibold">Button Style Tests:</h2>
+            
+            <button class="px-4 py-2 text-white bg-red-600 rounded-md">
+                Tailwind bg-red-600
+            </button>
+            
+            <button style="background-color: #dc2626;" class="px-4 py-2 text-white rounded-md">
+                Inline style #dc2626
+            </button>
+            
+            <button style="background-color: red !important;" class="px-4 py-2 text-white rounded-md">
+                Inline style red !important
+            </button>
+            
+            <button style="background: linear-gradient(to right, #dc2626, #b91c1c);" class="px-4 py-2 text-white rounded-md">
+                Gradient red background
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('hidden');
+            
+            // Reset delete button state
+            const deleteButton = document.getElementById('deleteConfirmBtn');
+            if (deleteButton) {
+                deleteButton.disabled = false;
+                deleteButton.style.backgroundColor = '#dc2626';
+                deleteButton.innerHTML = `
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Delete Contact
+                `;
+            }
+        }
+
+        function confirmDelete() {
+            // Disable the button to prevent double-clicks
+            const deleteButton = document.getElementById('deleteConfirmBtn');
+            if (deleteButton) {
+                deleteButton.disabled = true;
+                deleteButton.style.backgroundColor = '#b91c1c';
+                deleteButton.innerHTML = `
+                    <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Deleting...
+                `;
+            }
+            
+            // Simulate deletion process
+            setTimeout(() => {
+                alert('Contact would be deleted in real implementation');
+                closeDeleteModal();
+            }, 2000);
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+    </script>
+</body>
+</html>

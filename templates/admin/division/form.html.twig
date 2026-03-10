@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ isEdit ? 'Edit' : 'Create' }} Division - Admin{% endblock %}
+
+{% block body %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900">{{ isEdit ? 'Edit' : 'Create' }} Division</h1>
+            <p class="mt-1 text-sm text-slate-600">{{ isEdit ? 'Update division information' : 'Add a new division to an office' }}</p>
+        </div>
+        <a href="{{ path('admin_division_index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors duration-200">
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to List
+        </a>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <form method="POST" class="space-y-6">
+            <input type="hidden" name="_token" value="{{ csrf_token('division_form') }}">
+            
+            <!-- Name -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-slate-700 mb-2">
+                    Division Name <span class="text-red-500">*</span>
+                </label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       value="{{ division ? division.name : '' }}"
+                       required
+                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                       placeholder="e.g., Policy Research Division">
+                <p class="mt-1 text-xs text-slate-500">Full name of the division</p>
+            </div>
+
+            <!-- Code -->
+            <div>
+                <label for="code" class="block text-sm font-medium text-slate-700 mb-2">
+                    Division Code <span class="text-red-500">*</span>
+                </label>
+                <input type="text" 
+                       id="code" 
+                       name="code" 
+                       value="{{ division ? division.code : '' }}"
+                       required
+                       maxlength="50"
+                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                       placeholder="e.g., PRED"
+                       oninput="this.value = this.value.toUpperCase()">
+                <p class="mt-1 text-xs text-slate-500">Unique code identifier (will be converted to uppercase)</p>
+            </div>
+
+            <!-- Office -->
+            <div>
+                <label for="office_id" class="block text-sm font-medium text-slate-700 mb-2">
+                    Office <span class="text-red-500">*</span>
+                </label>
+                <select id="office_id" 
+                        name="office_id" 
+                        required
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200">
+                    <option value="">Select an office</option>
+                    {% for office in offices %}
+                    <option value="{{ office.id }}" {{ (division and division.office.id == office.id) ? 'selected' : '' }}>
+                        {{ office.name }} ({{ office.code }}){% if office.cluster %} - {{ office.cluster.code }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                <p class="mt-1 text-xs text-slate-500">Select the parent office for this division</p>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label for="description" class="block text-sm font-medium text-slate-700 mb-2">
+                    Description
+                </label>
+                <textarea id="description" 
+                          name="description" 
+                          rows="3"
+                          class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                          placeholder="Brief description of the division">{{ division ? division.description : '' }}</textarea>
+                <p class="mt-1 text-xs text-slate-500">Optional description</p>
+            </div>
+
+            <!-- Display Order -->
+            <div>
+                <label for="displayOrder" class="block text-sm font-medium text-slate-700 mb-2">
+                    Display Order
+                </label>
+                <input type="number" 
+                       id="displayOrder" 
+                       name="displayOrder" 
+                       value="{{ division ? division.displayOrder : 0 }}"
+                       min="0"
+                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200">
+                <p class="mt-1 text-xs text-slate-500">Lower numbers appear first</p>
+            </div>
+
+            <!-- Is Active -->
+            <div class="flex items-center">
+                <input type="checkbox" 
+                       id="isActive" 
+                       name="isActive" 
+                       value="1"
+                       {{ (division is null or division.isActive) ? 'checked' : '' }}
+                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded">
+                <label for="isActive" class="ml-2 block text-sm text-slate-700">
+                    Active
+                </label>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end space-x-3 pt-6 border-t border-slate-200">
+                <a href="{{ path('admin_division_index') }}" class="px-6 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors duration-200">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                    {{ isEdit ? 'Update' : 'Create' }} Division
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,581 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Form: {{ form.name }} - Form Builder - TESDA Calendar{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .field-item {
+            transition: all 0.2s ease;
+        }
+        .field-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .field-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .drop-zone.drag-over {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .field-type-item {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        .field-type-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .field-type-item:active {
+            cursor: grabbing;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="flex items-center space-x-4">
+                            <li>
+                                <a href="{{ path('form_builder_index') }}" class="text-gray-400 hover:text-gray-500">
+                                    Form Builder
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="ml-4 text-sm font-medium text-gray-500">{{ form.name }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                    <h1 class="mt-2 text-3xl font-bold text-gray-900">Edit Form: {{ form.name }}</h1>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{{ path('form_builder_preview', {id: form.id}) }}" 
+                       target="_blank"
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Preview
+                    </a>
+                    <button id="save-form" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                        </svg>
+                        Save Form
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Field Types Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow rounded-lg sticky top-8">
+                    <div class="px-4 py-5 sm:px-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Field Types</h3>
+                        <p class="mt-1 text-sm text-gray-500">Drag fields to add them to your form</p>
+                    </div>
+                    <div class="border-t border-gray-200">
+                        {% for categoryKey, categoryFields in fieldTypes %}
+                            <div class="px-4 py-4">
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">{{ categoryNames[categoryKey] ?? categoryKey|title }}</h4>
+                                <div class="space-y-2">
+                                    {% for fieldType, config in categoryFields %}
+                                        <div class="field-type-item bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100"
+                                             draggable="true"
+                                             data-field-type="{{ fieldType }}"
+                                             data-field-config="{{ config|json_encode|e('html_attr') }}">
+                                            <div class="flex items-center space-x-2">
+                                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                                </svg>
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ config.name }}</div>
+                                                    <div class="text-xs text-gray-500">{{ config.description }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Builder Area -->
+            <div class="lg:col-span-3">
+                <!-- Form Settings -->
+                <div class="bg-white shadow rounded-lg mb-6">
+                    <div class="px-4 py-5 sm:px-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Form Settings</h3>
+                    </div>
+                    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                        <form method="post" class="space-y-4">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-gray-700">Form Name</label>
+                                    <input type="text" 
+                                           name="name" 
+                                           id="name" 
+                                           value="{{ form.name }}"
+                                           required
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                </div>
+
+                                <div>
+                                    <label for="assignedTo" class="block text-sm font-medium text-gray-700">Assigned To</label>
+                                    <input type="text" 
+                                           name="assignedTo" 
+                                           id="assignedTo"
+                                           value="{{ form.assignedTo }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                                <textarea name="description" 
+                                          id="description" 
+                                          rows="2"
+                                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">{{ form.description }}</textarea>
+                            </div>
+
+                            <div>
+                                <label for="tags" class="block text-sm font-medium text-gray-700">Tags</label>
+                                <input type="text" 
+                                       name="tags" 
+                                       id="tags"
+                                       value="{{ form.tags|join(', ') }}"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="submit" 
+                                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                    Update Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:px-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Form Fields</h3>
+                        <p class="mt-1 text-sm text-gray-500">Drag and drop to reorder fields</p>
+                    </div>
+                    <div class="border-t border-gray-200">
+                        <div id="form-fields" class="p-4">
+                            {% if fields|length > 0 %}
+                                <div id="fields-container" class="space-y-4">
+                                    {% for field in fields %}
+                                        <div class="field-item bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                                             data-field-id="{{ field.id }}"
+                                             draggable="true">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center space-x-3">
+                                                    <div class="flex-shrink-0">
+                                                        <svg class="h-5 w-5 text-gray-400 cursor-move" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">{{ field.label }}</div>
+                                                        <div class="text-sm text-gray-500">
+                                                            {{ field.typeDisplayName }}
+                                                            {% if field.isRequired %} • Required{% endif %}
+                                                            {% if field.name %} • {{ field.name }}{% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    <button type="button" 
+                                                            class="edit-field-btn text-blue-600 hover:text-blue-500"
+                                                            data-field-id="{{ field.id }}">
+                                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        </svg>
+                                                    </button>
+                                                    <button type="button" 
+                                                            class="delete-field-btn text-red-600 hover:text-red-500"
+                                                            data-field-id="{{ field.id }}">
+                                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div id="empty-state" class="drop-zone flex flex-col items-center justify-center py-12">
+                                    <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No fields yet</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Drag field types from the sidebar to add them to your form</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Field Edit Modal -->
+<div id="field-edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Edit Field</h3>
+                <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="field-edit-form" class="space-y-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="field-name" class="block text-sm font-medium text-gray-700">Field Name</label>
+                        <input type="text" id="field-name" name="name" required
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="field-label" class="block text-sm font-medium text-gray-700">Label</label>
+                        <input type="text" id="field-label" name="label" required
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="field-description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="field-description" name="description" rows="2"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="field-placeholder" class="block text-sm font-medium text-gray-700">Placeholder</label>
+                        <input type="text" id="field-placeholder" name="placeholder"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="field-default-value" class="block text-sm font-medium text-gray-700">Default Value</label>
+                        <input type="text" id="field-default-value" name="defaultValue"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="field-required" name="isRequired" 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="field-required" class="ml-2 block text-sm text-gray-900">Required field</label>
+                </div>
+
+                <div id="field-options-section" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700">Options</label>
+                    <div id="field-options-container" class="mt-2 space-y-2">
+                        <!-- Options will be dynamically added here -->
+                    </div>
+                    <button type="button" id="add-option-btn" 
+                            class="mt-2 inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="-ml-1 mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add Option
+                    </button>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancel-edit" 
+                            class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        Save Field
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const formId = {{ form.id }};
+        let draggedElement = null;
+        let currentEditingField = null;
+
+        // Initialize drag and drop
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDragAndDrop();
+            initializeFieldEditing();
+            initializeFieldDeletion();
+        });
+
+        function initializeDragAndDrop() {
+            // Field type drag start
+            document.querySelectorAll('.field-type-item').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        type: 'field-type',
+                        fieldType: this.dataset.fieldType,
+                        config: JSON.parse(this.dataset.fieldConfig)
+                    }));
+                });
+            });
+
+            // Field item drag start
+            document.addEventListener('dragstart', function(e) {
+                if (e.target.classList.contains('field-item')) {
+                    draggedElement = e.target;
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        type: 'field-reorder',
+                        fieldId: e.target.dataset.fieldId
+                    }));
+                }
+            });
+
+            // Field item drag end
+            document.addEventListener('dragend', function(e) {
+                if (e.target.classList.contains('field-item')) {
+                    e.target.classList.remove('dragging');
+                    draggedElement = null;
+                }
+            });
+
+            // Drop zone events
+            const formFields = document.getElementById('form-fields');
+            
+            formFields.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            formFields.addEventListener('dragleave', function(e) {
+                if (!this.contains(e.relatedTarget)) {
+                    this.classList.remove('drag-over');
+                }
+            });
+
+            formFields.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                
+                if (data.type === 'field-type') {
+                    addNewField(data.fieldType, data.config);
+                } else if (data.type === 'field-reorder') {
+                    handleFieldReorder(e);
+                }
+            });
+        }
+
+        function addNewField(fieldType, config) {
+            const fieldData = {
+                name: `field_${Date.now()}`,
+                label: config.name,
+                type: fieldType,
+                description: '',
+                placeholder: config.supports_placeholder ? `Enter ${config.name.toLowerCase()}` : '',
+                defaultValue: '',
+                isRequired: false,
+                options: {},
+                validationRules: config.default_validation || {},
+                attributes: {}
+            };
+
+            fetch(`/form-builder/api/forms/${formId}/fields`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(fieldData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Reload to show the new field
+                } else {
+                    alert('Error adding field: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding field');
+            });
+        }
+
+        function handleFieldReorder(e) {
+            // Implementation for field reordering
+            const fieldsContainer = document.getElementById('fields-container');
+            if (!fieldsContainer || !draggedElement) return;
+
+            const afterElement = getDragAfterElement(fieldsContainer, e.clientY);
+            
+            if (afterElement == null) {
+                fieldsContainer.appendChild(draggedElement);
+            } else {
+                fieldsContainer.insertBefore(draggedElement, afterElement);
+            }
+
+            // Update field order on server
+            updateFieldOrder();
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.field-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function updateFieldOrder() {
+            const fieldIds = [...document.querySelectorAll('.field-item')].map(item => 
+                parseInt(item.dataset.fieldId)
+            );
+
+            fetch(`/form-builder/api/forms/${formId}/fields/reorder`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ fieldIds })
+            })
+            .catch(error => {
+                console.error('Error updating field order:', error);
+            });
+        }
+
+        function initializeFieldEditing() {
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.edit-field-btn')) {
+                    const fieldId = e.target.closest('.edit-field-btn').dataset.fieldId;
+                    openFieldEditModal(fieldId);
+                }
+            });
+
+            document.getElementById('close-modal').addEventListener('click', closeFieldEditModal);
+            document.getElementById('cancel-edit').addEventListener('click', closeFieldEditModal);
+            
+            document.getElementById('field-edit-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveFieldChanges();
+            });
+        }
+
+        function openFieldEditModal(fieldId) {
+            currentEditingField = fieldId;
+            // In a real implementation, you would fetch field data and populate the form
+            document.getElementById('field-edit-modal').classList.remove('hidden');
+        }
+
+        function closeFieldEditModal() {
+            document.getElementById('field-edit-modal').classList.add('hidden');
+            currentEditingField = null;
+        }
+
+        function saveFieldChanges() {
+            const formData = new FormData(document.getElementById('field-edit-form'));
+            const fieldData = Object.fromEntries(formData.entries());
+            fieldData.isRequired = document.getElementById('field-required').checked;
+
+            fetch(`/form-builder/api/fields/${currentEditingField}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(fieldData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeFieldEditModal();
+                    location.reload();
+                } else {
+                    alert('Error saving field: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving field');
+            });
+        }
+
+        function initializeFieldDeletion() {
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-field-btn')) {
+                    const fieldId = e.target.closest('.delete-field-btn').dataset.fieldId;
+                    if (confirm('Are you sure you want to delete this field?')) {
+                        deleteField(fieldId);
+                    }
+                }
+            });
+        }
+
+        function deleteField(fieldId) {
+            fetch(`/form-builder/api/fields/${fieldId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error deleting field: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting field');
+            });
+        }
+    </script>
+{% endblock %}

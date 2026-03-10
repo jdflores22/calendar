@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>February 5th Conflict Detection Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">🗓️ February 5th Conflict Detection Test</h1>
+        
+        <!-- Status -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-900 mb-4">📋 Test Status</h2>
+            <p class="text-blue-800 mb-4">Testing conflict detection with February 5th, 2026 events:</p>
+            <ul class="text-blue-700 space-y-1 text-sm">
+                <li>• <strong>Test Event - Feb 5th Meeting:</strong> 10:00 AM - 11:00 AM (Conference Room A)</li>
+                <li>• <strong>Overlapping Workshop - Feb 5th:</strong> 10:30 AM - 12:00 PM (Conference Room B)</li>
+                <li>• <strong>Policy Review Session:</strong> 2:00 PM - 4:00 PM (PPDD Conference Room)</li>
+                <li>• <strong>AI Skills Program:</strong> 3:00 PM - 4:00 PM (Planning Division Conference Room)</li>
+            </ul>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Conflict Tests -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-red-600 mb-4">⚠️ Should Show Conflicts</h2>
+                <div class="space-y-3">
+                    <button onclick="testConflict('2026-02-05T10:15', '2026-02-05T10:45', 'Overlap with Test Event')" 
+                            class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 text-sm">
+                        10:15 AM - 10:45 AM (Overlaps Test Event)
+                    </button>
+                    
+                    <button onclick="testConflict('2026-02-05T10:45', '2026-02-05T11:30', 'Overlap with both morning events')" 
+                            class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 text-sm">
+                        10:45 AM - 11:30 AM (Overlaps both morning events)
+                    </button>
+                    
+                    <button onclick="testConflict('2026-02-05T14:30', '2026-02-05T15:30', 'Overlap with Policy Review')" 
+                            class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 text-sm">
+                        2:30 PM - 3:30 PM (Overlaps Policy Review & AI Skills)
+                    </button>
+                    
+                    <button onclick="testConflict('2026-02-05T09:30', '2026-02-05T10:30', 'Overlap start of Test Event')" 
+                            class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 text-sm">
+                        9:30 AM - 10:30 AM (Overlaps start of Test Event)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Clear Tests -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-green-600 mb-4">✅ Should Be Clear</h2>
+                <div class="space-y-3">
+                    <button onclick="testConflict('2026-02-05T08:00', '2026-02-05T09:00', 'Early morning slot')" 
+                            class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 text-sm">
+                        8:00 AM - 9:00 AM (Early morning)
+                    </button>
+                    
+                    <button onclick="testConflict('2026-02-05T12:00', '2026-02-05T13:00', 'Lunch time slot')" 
+                            class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 text-sm">
+                        12:00 PM - 1:00 PM (Lunch time)
+                    </button>
+                    
+                    <button onclick="testConflict('2026-02-05T16:30', '2026-02-05T17:30', 'Late afternoon slot')" 
+                            class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 text-sm">
+                        4:30 PM - 5:30 PM (Late afternoon)
+                    </button>
+                    
+                    <button onclick="testConflict('2026-02-05T11:00', '2026-02-05T12:00', 'Between morning and afternoon')" 
+                            class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 text-sm">
+                        11:00 AM - 12:00 PM (Between events)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">📊 Test Results</h2>
+            <div id="testResults" class="p-4 bg-gray-50 rounded-md min-h-[200px]">
+                <p class="text-gray-500 text-center">Click test buttons above to see results</p>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-yellow-900 mb-4">📝 Instructions</h2>
+            <ol class="text-yellow-800 space-y-2">
+                <li><strong>1.</strong> Make sure you're logged in at <a href="http://127.0.0.4:8000/login" class="underline" target="_blank">http://127.0.0.4:8000/login</a></li>
+                <li><strong>2.</strong> Click the test buttons above to test different time scenarios</li>
+                <li><strong>3.</strong> Red buttons should show conflicts, green buttons should be clear</li>
+                <li><strong>4.</strong> If working correctly, go test the modal at <a href="http://127.0.0.4:8000/calendar" class="underline" target="_blank">http://127.0.0.4:8000/calendar</a></li>
+                <li><strong>5.</strong> Open browser console (F12) to see detailed logs</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let testCount = 0;
+        let passCount = 0;
+        let failCount = 0;
+
+        async function testConflict(start, end, description) {
+            testCount++;
+            const resultsDiv = document.getElementById('testResults');
+            
+            // Add test to results
+            const testDiv = document.createElement('div');
+            testDiv.className = 'mb-4 p-3 border rounded-md';
+            testDiv.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-medium">Test ${testCount}: ${description}</h3>
+                        <p class="text-sm text-gray-600">${start} to ${end}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="animate-spin w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full"></div>
+                        <span class="text-sm text-blue-600">Testing...</span>
+                    </div>
+                </div>
+            `;
+            
+            if (resultsDiv.children.length === 1 && resultsDiv.children[0].textContent.includes('Click test buttons')) {
+                resultsDiv.innerHTML = '';
+            }
+            resultsDiv.appendChild(testDiv);
+            
+            try {
+                console.log(`\n🧪 Test ${testCount}: ${description}`);
+                console.log(`   Time: ${start} to ${end}`);
+                
+                const response = await fetch('/events/api/check-conflicts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        start: start,
+                        end: end
+                    })
+                });
+                
+                console.log(`   Response: ${response.status}`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('   Result:', result);
+                    
+                    if (result.success) {
+                        let statusClass, statusText, statusIcon;
+                        
+                        if (result.has_conflicts) {
+                            statusClass = 'border-red-200 bg-red-50';
+                            statusText = `⚠️ CONFLICTS (${result.conflict_count})`;
+                            statusIcon = '⚠️';
+                            passCount++;
+                            
+                            // Show conflict details
+                            let conflictDetails = '';
+                            if (result.conflicts && result.conflicts.length > 0) {
+                                conflictDetails = '<div class="mt-2 text-xs"><strong>Conflicting events:</strong><ul class="list-disc list-inside">';
+                                result.conflicts.forEach(conflict => {
+                                    conflictDetails += `<li>${conflict.title} (${new Date(conflict.start).toLocaleTimeString()} - ${new Date(conflict.end).toLocaleTimeString()})</li>`;
+                                });
+                                conflictDetails += '</ul></div>';
+                            }
+                            
+                            testDiv.className = `mb-4 p-3 border rounded-md ${statusClass}`;
+                            testDiv.innerHTML = `
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-red-800">Test ${testCount}: ${description}</h3>
+                                        <p class="text-sm text-red-600">${start} to ${end}</p>
+                                        ${conflictDetails}
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-lg">${statusIcon}</span>
+                                        <span class="text-sm font-medium text-red-700">${statusText}</span>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            statusClass = 'border-green-200 bg-green-50';
+                            statusText = 'NO CONFLICTS';
+                            statusIcon = '✅';
+                            passCount++;
+                            
+                            testDiv.className = `mb-4 p-3 border rounded-md ${statusClass}`;
+                            testDiv.innerHTML = `
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="font-medium text-green-800">Test ${testCount}: ${description}</h3>
+                                        <p class="text-sm text-green-600">${start} to ${end}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-lg">${statusIcon}</span>
+                                        <span class="text-sm font-medium text-green-700">${statusText}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        failCount++;
+                        testDiv.className = 'mb-4 p-3 border rounded-md border-yellow-200 bg-yellow-50';
+                        testDiv.innerHTML = `
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-medium text-yellow-800">Test ${testCount}: ${description}</h3>
+                                    <p class="text-sm text-yellow-600">${start} to ${end}</p>
+                                    <p class="text-xs text-yellow-700 mt-1">API Error: ${result.message}</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-lg">⚠️</span>
+                                    <span class="text-sm font-medium text-yellow-700">API ERROR</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else if (response.status === 302 || response.status === 401) {
+                    failCount++;
+                    testDiv.className = 'mb-4 p-3 border rounded-md border-red-200 bg-red-50';
+                    testDiv.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-medium text-red-800">Test ${testCount}: ${description}</h3>
+                                <p class="text-sm text-red-600">${start} to ${end}</p>
+                                <p class="text-xs text-red-700 mt-1">Authentication required. Please <a href="/login" class="underline">log in</a>.</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg">🔐</span>
+                                <span class="text-sm font-medium text-red-700">AUTH REQUIRED</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    failCount++;
+                    const errorText = await response.text();
+                    console.error('HTTP Error:', errorText);
+                    
+                    testDiv.className = 'mb-4 p-3 border rounded-md border-red-200 bg-red-50';
+                    testDiv.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-medium text-red-800">Test ${testCount}: ${description}</h3>
+                                <p class="text-sm text-red-600">${start} to ${end}</p>
+                                <p class="text-xs text-red-700 mt-1">HTTP ${response.status}: ${response.statusText}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg">❌</span>
+                                <span class="text-sm font-medium text-red-700">HTTP ERROR</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                failCount++;
+                console.error('Network Error:', error);
+                
+                testDiv.className = 'mb-4 p-3 border rounded-md border-red-200 bg-red-50';
+                testDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium text-red-800">Test ${testCount}: ${description}</h3>
+                            <p class="text-sm text-red-600">${start} to ${end}</p>
+                            <p class="text-xs text-red-700 mt-1">Network Error: ${error.message}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg">❌</span>
+                            <span class="text-sm font-medium text-red-700">NETWORK ERROR</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update summary
+            updateSummary();
+        }
+
+        function updateSummary() {
+            if (testCount > 0) {
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md';
+                summaryDiv.innerHTML = `
+                    <h3 class="font-medium text-blue-800">Test Summary</h3>
+                    <p class="text-sm text-blue-700">
+                        Total: ${testCount} | Passed: ${passCount} | Failed: ${failCount}
+                        ${testCount > 0 ? ` | Success Rate: ${Math.round((passCount / testCount) * 100)}%` : ''}
+                    </p>
+                `;
+                
+                // Remove existing summary
+                const existingSummary = document.querySelector('.mt-4.p-3.bg-blue-50');
+                if (existingSummary) {
+                    existingSummary.remove();
+                }
+                
+                document.getElementById('testResults').appendChild(summaryDiv);
+            }
+        }
+    </script>
+</body>
+</html>

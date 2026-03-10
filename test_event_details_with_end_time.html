@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details Modal - End Time Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <h1 class="text-2xl font-bold mb-6">Event Details Modal - End Time Display Test</h1>
+    
+    <div class="space-y-4">
+        <button onclick="showTestModal('same-day')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Test Same Day Event
+        </button>
+        
+        <button onclick="showTestModal('multi-day')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            Test Multi-Day Event
+        </button>
+        
+        <button onclick="showTestModal('all-day')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+            Test All Day Event
+        </button>
+    </div>
+
+    <script>
+        function showTestModal(type) {
+            // Create test event data
+            let event;
+            
+            if (type === 'same-day') {
+                event = {
+                    id: 1,
+                    title: 'Regional Coordination Meeting',
+                    start: new Date('2026-02-05T16:44:00'),
+                    end: new Date('2026-02-05T18:30:00'),
+                    allDay: false,
+                    extendedProps: {
+                        description: 'Coordination meeting for CALABARZON region activities',
+                        location: 'RO4A Conference Room',
+                        office: { name: 'Regional Office IV-A (CALABARZON)' },
+                        priority: 'normal'
+                    }
+                };
+            } else if (type === 'multi-day') {
+                event = {
+                    id: 2,
+                    title: 'Training Workshop',
+                    start: new Date('2026-02-05T09:00:00'),
+                    end: new Date('2026-02-07T17:00:00'),
+                    allDay: false,
+                    extendedProps: {
+                        description: 'Multi-day training workshop',
+                        location: 'Training Center',
+                        office: { name: 'Regional Office IV-A (CALABARZON)' },
+                        priority: 'high'
+                    }
+                };
+            } else {
+                event = {
+                    id: 3,
+                    title: 'Holiday Event',
+                    start: new Date('2026-02-05T00:00:00'),
+                    end: new Date('2026-02-05T23:59:59'),
+                    allDay: true,
+                    extendedProps: {
+                        description: 'All day holiday event',
+                        location: null,
+                        office: { name: 'Regional Office IV-A (CALABARZON)' },
+                        priority: 'normal'
+                    }
+                };
+            }
+            
+            showEventDetails(event);
+        }
+        
+        function showEventDetails(event) {
+            // Close any existing modals first
+            const existingModals = document.querySelectorAll('[data-modal-type="event-details"]');
+            existingModals.forEach(modal => modal.remove());
+            
+            const props = event.extendedProps;
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0';
+            modal.style.zIndex = '9500';
+            modal.setAttribute('data-modal-type', 'event-details');
+            
+            const closeModal = () => {
+                modal.remove();
+            };
+            
+            modal.innerHTML = `
+                <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeModal()" style="z-index: 9499;"></div>
+                <div class="fixed inset-0 flex items-center justify-center p-4" style="z-index: 9500;">
+                    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <h3 class="text-lg font-semibold text-slate-900">${event.title}</h3>
+                            </div>
+                            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div class="text-sm text-slate-600">
+                                    ${event.allDay ? 'All day' : `
+                                        <div class="flex items-center space-x-2">
+                                            <span>${event.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                                            <span class="text-slate-400">-</span>
+                                            <span>${event.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                                        </div>
+                                        <div class="text-xs text-slate-500 mt-1">
+                                            ${event.start.toLocaleDateString('en-US', { 
+                                                weekday: 'long', 
+                                                year: 'numeric', 
+                                                month: 'long', 
+                                                day: 'numeric' 
+                                            })}
+                                            ${event.start.toDateString() !== event.end.toDateString() ? 
+                                                ` - ${event.end.toLocaleDateString('en-US', { 
+                                                    weekday: 'long', 
+                                                    year: 'numeric', 
+                                                    month: 'long', 
+                                                    day: 'numeric' 
+                                                })}` : ''
+                                            }
+                                        </div>
+                                    `}
+                                </div>
+                            </div>
+                            
+                            ${props.location ? `
+                                <div class="flex items-center space-x-2">
+                                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <span class="text-sm text-slate-600">${props.location}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${props.office ? `
+                                <div class="flex items-center space-x-2">
+                                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    <span class="inline-flex items-center rounded-md bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-600 ring-1 ring-inset ring-indigo-400/20">
+                                        ${props.office.name}
+                                    </span>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="flex items-center space-x-2">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2h4a1 1 0 110 2h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4z" />
+                                </svg>
+                                <span class="inline-flex items-center rounded-md bg-${props.priority === 'high' ? 'red' : props.priority === 'medium' ? 'yellow' : 'green'}-400/10 px-2 py-1 text-xs font-medium text-${props.priority === 'high' ? 'red' : props.priority === 'medium' ? 'yellow' : 'green'}-600 ring-1 ring-inset ring-${props.priority === 'high' ? 'red' : props.priority === 'medium' ? 'yellow' : 'green'}-400/20">
+                                    ${props.priority.charAt(0).toUpperCase() + props.priority.slice(1)} Priority
+                                </span>
+                            </div>
+                            
+                            ${props.description ? `
+                                <div class="mt-3">
+                                    <p class="text-sm text-slate-600">${props.description}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors duration-200">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Make closeModal function available to the modal
+            modal.closeModal = closeModal;
+            
+            // Add event listeners for closing
+            const overlay = modal.querySelector('.bg-black.bg-opacity-50');
+            const closeButton = modal.querySelector('button[onclick="closeModal()"]');
+            const closeButtonBottom = modal.querySelectorAll('button[onclick="closeModal()"]')[1];
+            
+            if (overlay) overlay.addEventListener('click', closeModal);
+            if (closeButton) closeButton.addEventListener('click', closeModal);
+            if (closeButtonBottom) closeButtonBottom.addEventListener('click', closeModal);
+            
+            document.body.appendChild(modal);
+            
+            // Make closeModal available globally for onclick handlers
+            window.closeModal = closeModal;
+        }
+    </script>
+</body>
+</html>

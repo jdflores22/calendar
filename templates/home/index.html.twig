@@ -1,0 +1,1655 @@
+{% extends 'public_base.html.twig' %}
+
+{% block title %}COROPOTI Public Calendar{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .calendar-day {
+            min-height: 100px;
+            height: auto;
+            transition: all 0.2s ease;
+            position: relative;
+            padding: 8px !important;
+        }
+        
+        .calendar-day:hover {
+            background-color: #f8fafc;
+        }
+        
+        .calendar-day .space-y-1 {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            margin-top: 4px;
+        }
+        
+        .calendar-event-item {
+            position: relative;
+        }
+        
+        .calendar-event-item.spanning {
+            position: absolute !important;
+            z-index: 10;
+        }
+        
+        .event-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+        
+        .public-event-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .public-event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Hover tooltip styles */
+        .event-hover-tooltip {
+            position: fixed;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            min-width: 280px;
+            max-width: 350px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        
+        .event-hover-tooltip.show {
+            opacity: 1;
+        }
+        
+        .calendar-event-item {
+            position: relative;
+        }
+        
+        .tooltip-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+        
+        .tooltip-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .tooltip-priority-high {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .tooltip-priority-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .tooltip-priority-low {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .tooltip-status {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <!-- Top Navigation Bar -->
+    <nav class="bg-slate-900 border-b border-slate-800">
+        <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Left side - Logo and Title -->
+                <div class="flex items-center space-x-3">
+                    <img src="{{ asset('uploads/logos/tesdalogo.png') }}" alt="TESDA Logo" class="w-8 h-8 object-contain">
+                    <span class="text-white font-semibold text-lg hidden sm:inline">COROPOTI Centralized Schedule Management System</span>
+                    <span class="text-white font-semibold text-lg sm:hidden">COROPOTI CSMS</span>
+                </div>
+
+                <!-- Right side - Login Button -->
+                <div class="flex items-center space-x-4">
+                    <div class="hidden sm:block text-sm text-slate-300">
+                        <svg class="w-4 h-4 inline mr-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span id="currentDateTime">Loading...</span>
+                    </div>
+                    {% if not app.user %}
+                    <a href="{{ path('app_login') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        </svg>
+                        Staff Login
+                    </a>
+                    {% else %}
+                    <a href="{{ path('app_dashboard') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Dashboard
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Calendar Container -->
+    <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Calendar Controls -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <!-- Left: All Controls in One Line -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Navigation -->
+                    <div class="flex items-center space-x-2">
+                        <button onclick="previousMonth()" class="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200">
+                            <svg class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <h2 id="calendarMonthYear" class="text-xl font-semibold text-slate-900 min-w-[180px] text-center">Loading...</h2>
+                        <button onclick="nextMonth()" class="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200">
+                            <svg class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Today Button -->
+                    <button onclick="goToToday()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors duration-200">
+                        Today
+                    </button>
+                    
+                    <!-- Reset Filter Button (Hidden by default) -->
+                    <button id="resetFilterBtn" onclick="clearFilter()" class="hidden px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Reset
+                    </button>
+                    
+                    <!-- Cluster Dropdown Buttons -->
+                    {% for cluster in clusters %}
+                    <div class="relative" id="cluster-dropdown-{{ cluster.id }}">
+                        <button onclick="toggleClusterDropdown({{ cluster.id }})" 
+                                id="cluster-btn-{{ cluster.id }}"
+                                class="px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 hover:opacity-90"
+                                style="background-color: {{ cluster.color }};">
+                            <span id="cluster-label-{{ cluster.id }}">{{ cluster.code }}</span>
+                            <svg class="w-4 h-4 transition-transform duration-200" id="cluster-arrow-{{ cluster.id }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Panel -->
+                        <div id="cluster-panel-{{ cluster.id }}" class="hidden fixed left-1/2 -translate-x-1/2 top-[140px] sm:absolute sm:top-full sm:mt-3 w-[calc(100vw-2rem)] sm:w-[1000px] bg-white rounded-xl shadow-2xl border border-slate-200 z-[100] overflow-hidden">
+                            <!-- Cluster Header -->
+                            <div class="px-3 sm:px-5 py-2 sm:py-2.5 border-b border-slate-200" style="background: linear-gradient(135deg, {{ cluster.color }}15 0%, {{ cluster.color }}05 100%);">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                                        <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0" style="background-color: {{ cluster.color }};">
+                                            <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                            </svg>
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <h3 class="text-xs sm:text-base font-bold text-slate-900 truncate">{{ cluster.name }}</h3>
+                                            <p class="text-xs sm:text-sm text-slate-500">{{ cluster.code }}</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="filterByCluster({{ cluster.id }}, '{{ cluster.code }}', '{{ cluster.color }}'); event.stopPropagation();"
+                                            class="text-xs sm:text-sm font-medium text-white px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-sm hover:shadow-md transition-all flex-shrink-0 ml-2"
+                                            style="background-color: {{ cluster.color }};">
+                                        Show All
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Offices List - Responsive Columns -->
+                            <div class="max-h-[60vh] sm:max-h-[500px] overflow-y-auto">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-px bg-slate-100">
+                                    {% set halfCount = (cluster.offices|length / 2)|round(0, 'ceil') %}
+                                    {% for office in cluster.offices|slice(0, halfCount) %}
+                                    <div class="bg-white">
+                                        <!-- Office Header -->
+                                        <button onclick="filterByOffice({{ office.id }}, '{{ office.code }}', {{ cluster.id }}, '{{ cluster.code }}', '{{ cluster.color }}'); event.stopPropagation();" 
+                                                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-slate-50 transition-colors duration-150 text-left group border-b border-slate-100">
+                                            <div class="flex items-start gap-2">
+                                                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style="background-color: {{ office.effectiveColor }}20;">
+                                                    <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm" style="background-color: {{ office.effectiveColor }};"></div>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <h4 class="text-xs sm:text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight sm:leading-snug">
+                                                        {{ office.name }}
+                                                    </h4>
+                                                    <p class="text-xs text-slate-500 mt-0.5">{{ office.code }}</p>
+                                                </div>
+                                                {% if office.divisions|length > 0 %}
+                                                <span class="text-xs text-slate-400 bg-slate-100 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded flex-shrink-0">
+                                                    {{ office.divisions|length }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </button>
+                                        
+                                        <!-- Divisions -->
+                                        {% if office.divisions|length > 0 %}
+                                        <div class="bg-slate-50 px-3 sm:px-4 py-1 sm:py-1.5 space-y-0.5">
+                                            {% for division in office.divisions %}
+                                            <button onclick="filterByDivision({{ division.id }}, '{{ division.code }}', {{ office.id }}, '{{ office.code }}', {{ cluster.id }}, '{{ cluster.code }}', '{{ cluster.color }}'); event.stopPropagation();" 
+                                                    class="w-full flex items-start gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded hover:bg-white transition-colors duration-150 text-left group">
+                                                <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                                <span class="text-xs sm:text-sm text-slate-600 group-hover:text-blue-600 transition-colors flex-1 leading-tight sm:leading-snug">
+                                                    {{ division.name }}
+                                                </span>
+                                                <span class="text-xs text-slate-400 flex-shrink-0">{{ division.code }}</span>
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                    
+                                    {% for office in cluster.offices|slice(halfCount) %}
+                                    <div class="bg-white">
+                                        <!-- Office Header -->
+                                        <button onclick="filterByOffice({{ office.id }}, '{{ office.code }}', {{ cluster.id }}, '{{ cluster.code }}', '{{ cluster.color }}'); event.stopPropagation();" 
+                                                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-slate-50 transition-colors duration-150 text-left group border-b border-slate-100">
+                                            <div class="flex items-start gap-2">
+                                                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style="background-color: {{ office.effectiveColor }}20;">
+                                                    <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm" style="background-color: {{ office.effectiveColor }};"></div>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <h4 class="text-xs sm:text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight sm:leading-snug">
+                                                        {{ office.name }}
+                                                    </h4>
+                                                    <p class="text-xs text-slate-500 mt-0.5">{{ office.code }}</p>
+                                                </div>
+                                                {% if office.divisions|length > 0 %}
+                                                <span class="text-xs text-slate-400 bg-slate-100 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded flex-shrink-0">
+                                                    {{ office.divisions|length }}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </button>
+                                        
+                                        <!-- Divisions -->
+                                        {% if office.divisions|length > 0 %}
+                                        <div class="bg-slate-50 px-3 sm:px-4 py-1 sm:py-1.5 space-y-0.5">
+                                            {% for division in office.divisions %}
+                                            <button onclick="filterByDivision({{ division.id }}, '{{ division.code }}', {{ office.id }}, '{{ office.code }}', {{ cluster.id }}, '{{ cluster.code }}', '{{ cluster.color }}'); event.stopPropagation();" 
+                                                    class="w-full flex items-start gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded hover:bg-white transition-colors duration-150 text-left group">
+                                                <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                                <span class="text-xs sm:text-sm text-slate-600 group-hover:text-blue-600 transition-colors flex-1 leading-tight sm:leading-snug">
+                                                    {{ division.name }}
+                                                </span>
+                                                <span class="text-xs text-slate-400 flex-shrink-0">{{ division.code }}</span>
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Right: View Buttons -->
+                <div class="flex items-center bg-slate-100 rounded-lg p-1">
+                    <button onclick="changeView('month')" id="monthViewBtn" class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors duration-200">
+                        Month
+                    </button>
+                    <button onclick="changeView('week')" id="weekViewBtn" class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-md transition-colors duration-200">
+                        Week
+                    </button>
+                    <button onclick="changeView('day')" id="dayViewBtn" class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-md transition-colors duration-200">
+                        Day
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout: Calendar + Event List -->
+        <div class="flex gap-6">
+            <!-- Calendar Grid (Main Column) -->
+            <div class="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Calendar Header (Days of Week) -->
+                <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200">
+                    <div class="p-3 text-center text-sm font-semibold text-slate-700">Sun</div>
+                    <div class="p-3 text-center text-sm font-semibold text-slate-700">Mon</div>
+                    <div class="p-3 text-center text-sm font-semibold text-slate-700">Tue</div>
+                    <div class="p-3 text-center text-sm font-semibold text-slate-700">Wed</div>
+                    <div class="p-3 text-center text-sm font-semibold text-slate-700">Thu</div>
+                    <div class="p-3 text-center text-sm font-semibold text-slate-700">Fri</div>
+                    <div class="p-3 text-center text-sm font-semibold text-slate-700">Sat</div>
+                </div>
+
+                <!-- Calendar Days -->
+                <div id="calendarGrid" class="grid grid-cols-7">
+                    <!-- Days will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Event List Sidebar (Hidden by default) -->
+            <div id="eventListSidebar" class="hidden w-[420px] bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col" style="min-height: 600px; max-height: 800px;">
+                <!-- Sidebar Header -->
+                <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
+                    <h3 class="text-base font-bold text-slate-900">Filtered Events</h3>
+                    <p class="text-xs text-slate-500 mt-1" id="eventListCount">0 events</p>
+                </div>
+                
+                <!-- Event List -->
+                <div id="eventListContent" class="flex-1 overflow-y-auto p-4 space-y-3">
+                    <!-- Events will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hover Tooltip -->
+<div id="eventHoverTooltip" class="event-hover-tooltip"></div>
+
+<!-- Event Detail Modal (Read-Only) -->
+<div id="eventDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" style="max-width: 1200px;">
+        <div class="p-8">
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between mb-6">
+                <div class="flex-1">
+                    <h3 id="modalEventTitle" class="text-3xl font-bold text-slate-900 mb-3"></h3>
+                    <div id="modalEventBadges" class="flex flex-wrap gap-2">
+                        <!-- Badges will be populated by JavaScript -->
+                    </div>
+                </div>
+                <button onclick="closeEventModal()" class="text-slate-400 hover:text-slate-600 transition-colors duration-200 ml-4">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Content - 2 Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left Column: Date, Time, Location, Description -->
+                <div id="modalEventContentLeft" class="space-y-5">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+                
+                <!-- Right Column: Meeting Type, Zoom Link, Attachments -->
+                <div id="modalEventContentRight" class="space-y-5">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Events data from server
+const eventsData = {{ events|json_encode|raw }};
+
+// Current calendar state
+let currentDate = new Date();
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+
+// Initialize calendar
+document.addEventListener('DOMContentLoaded', function() {
+    updateCurrentDateTime();
+    setInterval(updateCurrentDateTime, 1000);
+    renderCalendar();
+});
+
+function updateCurrentDateTime() {
+    const now = new Date();
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+}
+
+function renderCalendar() {
+    if (currentView === 'month') {
+        renderMonthView();
+    } else if (currentView === 'week') {
+        renderWeekView();
+    } else if (currentView === 'day') {
+        renderDayView();
+    }
+    
+    // Update event list if filter is active
+    if (activeFilter.type) {
+        updateEventList();
+    }
+}
+
+// Render Month View
+function renderMonthView() {
+    // Restore grid classes for month view
+    document.getElementById('calendarGrid').className = 'grid grid-cols-7 relative';
+    
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    const prevLastDay = new Date(currentYear, currentMonth, 0);
+    
+    const firstDayIndex = firstDay.getDay();
+    const lastDayDate = lastDay.getDate();
+    const prevLastDayDate = prevLastDay.getDate();
+    
+    // Update month/year display
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    document.getElementById('calendarMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    
+    // Build calendar grid with day numbers only
+    let days = '';
+    let dayIndex = 0;
+    const calendarDays = [];
+    
+    // Previous month days
+    for (let x = firstDayIndex; x > 0; x--) {
+        const dayNum = prevLastDayDate - x + 1;
+        days += `<div class="calendar-day p-3 border border-slate-100 bg-slate-50 relative" data-day-index="${dayIndex}">
+                    <div class="text-sm text-slate-400">${dayNum}</div>
+                    <div class="mt-1 space-y-1"></div>
+                 </div>`;
+        calendarDays.push({ date: null, isPrevMonth: true, dayNum });
+        dayIndex++;
+    }
+    
+    // Current month days
+    for (let i = 1; i <= lastDayDate; i++) {
+        const date = new Date(currentYear, currentMonth, i);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+        
+        const isToday = i === currentDate.getDate() && currentMonth === currentDate.getMonth() && currentYear === currentDate.getFullYear();
+        
+        days += `<div class="calendar-day p-3 border border-slate-100 ${isToday ? 'bg-indigo-50' : ''} relative" data-day-index="${dayIndex}" data-date="${dateStr}">
+                    <div class="text-sm font-semibold ${isToday ? 'text-indigo-600' : 'text-slate-700'} mb-1">${i}</div>
+                    <div class="mt-1 space-y-1"></div>
+                 </div>`;
+        calendarDays.push({ date: dateStr, isCurrentMonth: true, dayNum: i });
+        dayIndex++;
+    }
+    
+    // Next month days
+    const remainingDays = 42 - (firstDayIndex + lastDayDate);
+    for (let j = 1; j <= remainingDays; j++) {
+        days += `<div class="calendar-day p-3 border border-slate-100 bg-slate-50 relative" data-day-index="${dayIndex}">
+                    <div class="text-sm text-slate-400">${j}</div>
+                    <div class="mt-1 space-y-1"></div>
+                 </div>`;
+        calendarDays.push({ date: null, isNextMonth: true, dayNum: j });
+        dayIndex++;
+    }
+    
+    document.getElementById('calendarGrid').innerHTML = days;
+    
+    // Now render spanning events
+    renderSpanningEvents(calendarDays);
+}
+
+// Render events with spanning support
+function renderSpanningEvents(calendarDays) {
+    const renderedEvents = new Set();
+    const spanningEventsByRow = {}; // Track spanning events per row
+    
+    // First pass: identify all spanning events and their positions
+    calendarDays.forEach((day, dayIndex) => {
+        if (!day.date) return;
+        
+        const dayEvents = getEventsForDate(day.date);
+        
+        dayEvents.forEach(event => {
+            const eventStart = new Date(event.startTime.replace(' ', 'T'));
+            const eventStartDate = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+            const currentDayDate = new Date(day.date + 'T00:00:00');
+            
+            if (eventStartDate.getTime() !== currentDayDate.getTime()) return;
+            if (renderedEvents.has(event.id)) return;
+            
+            const eventEnd = new Date(event.endTime.replace(' ', 'T'));
+            const eventEndDate = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+            
+            const currentRow = Math.floor(dayIndex / 7);
+            const rowEndIndex = (currentRow + 1) * 7 - 1;
+            
+            let spanDays = 1;
+            for (let i = dayIndex + 1; i <= rowEndIndex && i < calendarDays.length; i++) {
+                if (!calendarDays[i].date) break;
+                const checkDate = new Date(calendarDays[i].date + 'T00:00:00');
+                if (checkDate <= eventEndDate) {
+                    spanDays++;
+                } else {
+                    break;
+                }
+            }
+            
+            if (spanDays > 1) {
+                if (!spanningEventsByRow[currentRow]) {
+                    spanningEventsByRow[currentRow] = [];
+                }
+                spanningEventsByRow[currentRow].push({
+                    event,
+                    dayIndex,
+                    spanDays
+                });
+            }
+        });
+    });
+    
+    // Second pass: render all events
+    calendarDays.forEach((day, dayIndex) => {
+        if (!day.date) return;
+        
+        const dayEvents = getEventsForDate(day.date);
+        const dayEl = document.querySelector(`[data-day-index="${dayIndex}"]`);
+        if (!dayEl) return;
+        
+        const eventContainer = dayEl.querySelector('.space-y-1');
+        if (!eventContainer) return;
+        
+        // Calculate top padding needed for spanning events
+        const currentRow = Math.floor(dayIndex / 7);
+        const spanningInRow = spanningEventsByRow[currentRow] || [];
+        const topPadding = spanningInRow.length * 60; // 60px per spanning event (increased from 52px)
+        eventContainer.style.paddingTop = `${topPadding}px`;
+        
+        // Sort events by start time
+        dayEvents.sort((a, b) => {
+            const timeA = new Date(a.startTime.replace(' ', 'T'));
+            const timeB = new Date(b.startTime.replace(' ', 'T'));
+            return timeA - timeB;
+        });
+        
+        dayEvents.forEach(event => {
+            // Only render event on its start day
+            const eventStart = new Date(event.startTime.replace(' ', 'T'));
+            const eventStartDate = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+            const currentDayDate = new Date(day.date + 'T00:00:00');
+            
+            if (eventStartDate.getTime() !== currentDayDate.getTime()) {
+                return; // Skip if not the start day
+            }
+            
+            if (renderedEvents.has(event.id)) return;
+            renderedEvents.add(event.id);
+            
+            // Calculate how many days this event spans
+            const eventEnd = new Date(event.endTime.replace(' ', 'T'));
+            const eventEndDate = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+            
+            // Count days in current week row
+            const currentRow = Math.floor(dayIndex / 7);
+            const rowEndIndex = (currentRow + 1) * 7 - 1;
+            
+            let spanDays = 1;
+            for (let i = dayIndex + 1; i <= rowEndIndex && i < calendarDays.length; i++) {
+                if (!calendarDays[i].date) break;
+                const checkDate = new Date(calendarDays[i].date + 'T00:00:00');
+                if (checkDate <= eventEndDate) {
+                    spanDays++;
+                } else {
+                    break;
+                }
+            }
+            
+            const timeStr = eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            
+            const eventEl = document.createElement('div');
+            eventEl.className = 'calendar-event-item text-xs px-2.5 py-2 rounded cursor-pointer hover:shadow-md transition-all duration-200';
+            eventEl.style.cssText = `
+                background-color: ${event.effectiveColor}20;
+                color: ${event.effectiveColor};
+                border-left: 4px solid ${event.effectiveColor};
+                display: block;
+                line-height: 1.3;
+            `;
+            
+            // If spans multiple days, make it extend across
+            if (spanDays > 1) {
+                eventEl.classList.add('spanning');
+                const positionInRow = dayIndex % 7;
+                const daysToEnd = 7 - positionInRow;
+                const actualSpan = Math.min(spanDays, daysToEnd);
+                
+                // Find which spanning slot this event should use
+                const spanningInRow = spanningEventsByRow[currentRow] || [];
+                const slotIndex = spanningInRow.findIndex(s => s.event.id === event.id);
+                const topOffset = slotIndex * 60; // 60px per spanning event (increased from 52px)
+                
+                // Calculate width accounting for borders between cells
+                const widthCalc = `calc(${actualSpan * 100}% + ${(actualSpan - 1)}px)`;
+                
+                eventEl.style.cssText += `
+                    left: 0;
+                    top: ${topOffset}px;
+                    width: ${widthCalc};
+                `;
+            }
+            
+            eventEl.innerHTML = `
+                <div class="font-bold text-[11px] mb-1">${timeStr}</div>
+                <div class="text-[11px] font-medium leading-snug">${event.title}</div>
+            `;
+            eventEl.onclick = () => showEventDetail(event);
+            eventEl.onmouseenter = (e) => showEventTooltip(e, event);
+            eventEl.onmouseleave = () => hideEventTooltip();
+            
+            eventContainer.appendChild(eventEl);
+        });
+    });
+}
+
+// Render Week View
+function renderWeekView() {
+    // Set grid classes for week view
+    document.getElementById('calendarGrid').className = 'grid grid-cols-7';
+    
+    const today = new Date(currentYear, currentMonth, currentDate.getDate());
+    const dayOfWeek = today.getDay();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - dayOfWeek);
+    
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    
+    document.getElementById('calendarMonthYear').textContent = 
+        `${monthNames[startOfWeek.getMonth()]} ${startOfWeek.getDate()} - ${monthNames[endOfWeek.getMonth()]} ${endOfWeek.getDate()}, ${currentYear}`;
+    
+    let days = '';
+    
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+        
+        const dayEvents = getEventsForDate(dateStr);
+        const isToday = date.toDateString() === currentDate.toDateString();
+        
+        days += `<div class="calendar-day p-4 border border-slate-100 ${isToday ? 'bg-indigo-50' : ''} min-h-[200px]">
+                    <div class="text-base font-bold ${isToday ? 'text-indigo-600' : 'text-slate-700'} mb-2">${date.getDate()}</div>
+                    <div class="space-y-2">
+                        ${dayEvents.map(event => {
+                            const eventTime = new Date(event.startTime);
+                            const timeStr = eventTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                            return `
+                            <div class="calendar-event-item text-sm px-3 py-2 rounded cursor-pointer hover:opacity-80 transition-opacity duration-200" 
+                                 style="background-color: ${event.effectiveColor}20; color: ${event.effectiveColor}; border-left: 3px solid ${event.effectiveColor};"
+                                 onclick='showEventDetail(${JSON.stringify(event).replace(/'/g, "&#39;")})'
+                                 onmouseenter='showEventTooltip(event, ${JSON.stringify(event).replace(/'/g, "&#39;")})'
+                                 onmouseleave='hideEventTooltip()'>
+                                <div class="font-semibold">${timeStr}</div>
+                                <div>${event.title}</div>
+                            </div>
+                        `}).join('')}
+                    </div>
+                 </div>`;
+    }
+    
+    document.getElementById('calendarGrid').innerHTML = days;
+}
+
+// Render Day View
+function renderDayView() {
+    const today = new Date(currentYear, currentMonth, currentDate.getDate());
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    document.getElementById('calendarMonthYear').textContent = 
+        `${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}, ${currentYear}`;
+    
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
+    const dayEvents = getEventsForDate(dateStr);
+    
+    // Create hourly schedule
+    let schedule = '<div class="p-6">';
+    
+    if (dayEvents.length === 0) {
+        schedule += `
+            <div class="text-center py-12 text-slate-400">
+                <svg class="w-16 h-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="text-lg font-medium">No events scheduled for this day</p>
+            </div>
+        `;
+    } else {
+        // Sort events by time
+        dayEvents.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        
+        schedule += '<div class="space-y-4">';
+        dayEvents.forEach(event => {
+            const eventStart = new Date(event.startTime);
+            const eventEnd = new Date(event.endTime);
+            const timeStr = `${eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${eventEnd.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+            
+            schedule += `
+                <div class="border-l-4 pl-4 py-3 cursor-pointer hover:bg-slate-50 rounded-r-lg transition-colors duration-200"
+                     style="border-color: ${event.effectiveColor};"
+                     onclick='showEventDetail(${JSON.stringify(event).replace(/'/g, "&#39;")})'>
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-slate-900 mb-1">${event.title}</h3>
+                            <div class="flex items-center gap-4 text-sm text-slate-600">
+                                <div class="flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>${timeStr}</span>
+                                </div>
+                                ${event.location ? `
+                                    <div class="flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span>${event.location}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${event.description ? `<p class="text-sm text-slate-600 mt-2 line-clamp-2">${event.description}</p>` : ''}
+                        </div>
+                        <div class="w-3 h-3 rounded-full flex-shrink-0 mt-1" style="background-color: ${event.effectiveColor};"></div>
+                    </div>
+                </div>
+            `;
+        });
+        schedule += '</div>';
+    }
+    
+    schedule += '</div>';
+    
+    document.getElementById('calendarGrid').innerHTML = schedule;
+    document.getElementById('calendarGrid').className = ''; // Remove grid classes for day view
+}
+
+function getEventsForDate(dateStr) {
+    let filteredEvents = eventsData.filter(event => {
+        // Parse the date string (YYYY-MM-DD)
+        const checkDate = new Date(dateStr + 'T00:00:00');
+        
+        // Parse event start and end times
+        const eventStart = new Date(event.startTime.replace(' ', 'T'));
+        const eventEnd = new Date(event.endTime.replace(' ', 'T'));
+        
+        // Get just the date parts (without time) for comparison
+        const eventStartDate = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+        const eventEndDate = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+        const checkDateOnly = new Date(checkDate.getFullYear(), checkDate.getMonth(), checkDate.getDate());
+        
+        // Check if the date falls within the event's date range (inclusive)
+        return checkDateOnly >= eventStartDate && checkDateOnly <= eventEndDate;
+    });
+    
+    // Apply active filter
+    if (activeFilter.type) {
+        filteredEvents = filteredEvents.filter(event => {
+            if (activeFilter.type === 'cluster') {
+                // Show events from all offices in the cluster
+                return event.cluster_id == activeFilter.clusterId;
+            } else if (activeFilter.type === 'office') {
+                // Show events from this specific office
+                return event.office_id == activeFilter.officeId;
+            } else if (activeFilter.type === 'division') {
+                // Show events from this specific division
+                // Note: You'll need to add division_id to events if you want division-level filtering
+                // For now, fall back to office filtering
+                return event.office_id == activeFilter.officeId;
+            }
+            
+            return true;
+        });
+    }
+    
+    return filteredEvents;
+}
+
+// Helper function to get file icon based on extension
+function getFileIcon(extension, mimeType) {
+    const ext = extension.toLowerCase();
+    
+    // PDF
+    if (ext === 'pdf') {
+        return `<svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M4 18h12V6h-4V2H4v16zm-2 1V0h10l4 4v16H2v-1z"/>
+            <text x="10" y="14" font-size="6" text-anchor="middle" fill="currentColor">PDF</text>
+        </svg>`;
+    }
+    
+    // Word documents
+    if (ext === 'doc' || ext === 'docx') {
+        return `<svg class="w-8 h-8 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>`;
+    }
+    
+    // Excel spreadsheets
+    if (ext === 'xls' || ext === 'xlsx' || ext === 'csv') {
+        return `<svg class="w-8 h-8 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>`;
+    }
+    
+    // PowerPoint presentations
+    if (ext === 'ppt' || ext === 'pptx') {
+        return `<svg class="w-8 h-8 text-orange-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>`;
+    }
+    
+    // Images
+    if (mimeType && mimeType.startsWith('image/')) {
+        return `<svg class="w-8 h-8 text-purple-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>`;
+    }
+    
+    // Text files
+    if (ext === 'txt') {
+        return `<svg class="w-8 h-8 text-gray-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>`;
+    }
+    
+    // Default file icon
+    return `<svg class="w-8 h-8 text-slate-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+    </svg>`;
+}
+
+function showEventDetail(event) {
+    // Parse date strings without timezone conversion
+    const [startDatePart, startTimePart] = event.startTime.split(' ');
+    const [startYear, startMonth, startDay] = startDatePart.split('-');
+    const [startHour, startMinute] = startTimePart.split(':');
+    const startDate = new Date(startYear, startMonth - 1, startDay, startHour, startMinute);
+    
+    const [endDatePart, endTimePart] = event.endTime.split(' ');
+    const [endYear, endMonth, endDay] = endDatePart.split('-');
+    const [endHour, endMinute] = endTimePart.split(':');
+    const endDate = new Date(endYear, endMonth - 1, endDay, endHour, endMinute);
+    
+    document.getElementById('modalEventTitle').textContent = event.title;
+    
+    // Badges
+    let badges = `<span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    Confirmed
+                  </span>`;
+    if (event.allDay) {
+        badges += `<span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                     All Day
+                   </span>`;
+    }
+    document.getElementById('modalEventBadges').innerHTML = badges;
+    
+    // LEFT COLUMN: Date, Time, Location, Description
+    // Check if event spans multiple days
+    const startDateOnly = new Date(startYear, startMonth - 1, startDay);
+    const endDateOnly = new Date(endYear, endMonth - 1, endDay);
+    const isMultiDay = startDateOnly.getTime() !== endDateOnly.getTime();
+    
+    let leftContent = `
+        <!-- Date and Time -->
+        <div class="flex items-start space-x-4 p-4 bg-slate-50 rounded-lg">
+            <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <div class="flex-1">
+                ${isMultiDay ? `
+                    <div class="text-base font-semibold text-slate-900">
+                        ${startDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${!event.allDay ? startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'All Day'} - ${endDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${!event.allDay ? endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'All Day'}
+                    </div>
+                ` : `
+                    <div class="text-base font-semibold text-slate-900">${startDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    ${!event.allDay ? `<div class="text-slate-600 mt-1">${startDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - ${endDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>` : '<div class="text-slate-600 mt-1">All Day</div>'}
+                `}
+            </div>
+        </div>
+        
+        ${event.location ? `
+        <!-- Location -->
+        <div class="flex items-start space-x-4 p-4 bg-slate-50 rounded-lg">
+            <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-medium text-slate-500">Location</div>
+                <div class="text-base text-slate-900 mt-1">${event.location}</div>
+            </div>
+        </div>
+        ` : ''}
+    `;
+    
+    if (event.description) {
+        leftContent += `
+            <div class="pt-4">
+                <h4 class="text-lg font-semibold text-slate-900 mb-3">Description</h4>
+                <p class="text-base text-slate-600 leading-relaxed">${event.description}</p>
+            </div>
+        `;
+    }
+    
+    document.getElementById('modalEventContentLeft').innerHTML = leftContent;
+    
+    // RIGHT COLUMN: Meeting Type, Zoom Link, Attachments
+    let rightContent = `
+        <!-- Event Host -->
+        <div class="flex items-start space-x-4 p-4 bg-slate-50 rounded-lg">
+            <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-medium text-slate-500">Event Host</div>
+                ${event.host_info && event.host_info.cluster_code ? `
+                    <div class="mt-2">
+                        ${event.host_info.has_division ? `
+                            <!-- With Division -->
+                            <div class="text-lg font-bold text-slate-900">
+                                ${event.host_info.division_name}
+                            </div>
+                            <div class="text-sm text-slate-600 mt-1">
+                                ${event.host_info.cluster_code} | ${event.host_info.office_code}
+                            </div>
+                        ` : `
+                            <!-- Without Division -->
+                            <div class="text-lg font-bold text-slate-900">
+                                ${event.host_info.office_name}
+                            </div>
+                            <div class="text-sm text-slate-600 mt-1">
+                                ${event.host_info.cluster_code}
+                            </div>
+                        `}
+                    </div>
+                ` : `
+                    <div class="text-base text-slate-900 mt-1">Unknown</div>
+                `}
+            </div>
+        </div>
+        
+        <!-- Meeting Type -->
+        <div class="flex items-start space-x-4 p-4 bg-slate-50 rounded-lg">
+            <div class="flex-shrink-0">
+                ${event.meetingType === 'zoom' ? `
+                    <svg class="w-6 h-6" style="color: #2D8CFF;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                ` : event.meetingType === 'hybrid' ? `
+                    <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                ` : event.meetingType === 'in-person' ? `
+                    <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                ` : `
+                    <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `}
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-medium text-slate-500">Meeting Type</div>
+                <div class="text-base text-slate-900 mt-1">${event.meetingType === 'in-person' ? 'In-Person' : event.meetingType === 'zoom' ? 'Zoom Meeting' : event.meetingType === 'hybrid' ? 'Hybrid' : 'Other'}</div>
+            </div>
+        </div>
+        
+        ${event.zoomLink ? `
+        <!-- Zoom Link -->
+        <div class="flex items-start space-x-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+            </div>
+            <div class="flex-1">
+                <div class="text-sm font-medium text-blue-900 mb-2">Zoom Meeting Link</div>
+                <a href="${event.zoomLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200" style="background-color: #2D8CFF;">
+                    <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Join Zoom Meeting
+                    <svg class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </a>
+                <div class="mt-2 text-xs text-blue-700 break-all">${event.zoomLink}</div>
+            </div>
+        </div>
+        ` : ''}
+        
+        ${event.attachments && event.attachments.length > 0 ? `
+        <!-- Attachments -->
+        <div class="p-4 bg-slate-50 rounded-lg">
+            <div class="flex items-center space-x-2 mb-3">
+                <svg class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+                <div class="text-sm font-medium text-slate-700">Attachments (${event.attachments.length})</div>
+            </div>
+            <div class="space-y-2">
+                ${event.attachments.map(attachment => `
+                    <a href="${attachment.downloadUrl}" target="_blank" download class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group">
+                        <div class="flex items-center space-x-3 flex-1 min-w-0">
+                            ${getFileIcon(attachment.extension, attachment.mimeType)}
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-slate-900 truncate group-hover:text-indigo-700">${attachment.originalName}</div>
+                                <div class="text-xs text-slate-500">${attachment.fileSize}</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </a>
+                `).join('')}
+            </div>
+        </div>
+        ` : ''}
+    `;
+    
+    document.getElementById('modalEventContentRight').innerHTML = rightContent;
+    document.getElementById('eventDetailModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeEventModal() {
+    document.getElementById('eventDetailModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function previousMonth() {
+    currentMonth--;
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    }
+    renderCalendar();
+}
+
+function nextMonth() {
+    currentMonth++;
+    if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
+    renderCalendar();
+}
+
+function goToToday() {
+    currentDate = new Date();
+    currentMonth = currentDate.getMonth();
+    currentYear = currentDate.getFullYear();
+    renderCalendar();
+}
+
+// Toggle cluster dropdown
+function toggleClusterDropdown(clusterId) {
+    const panel = document.getElementById('cluster-panel-' + clusterId);
+    const arrow = document.getElementById('cluster-arrow-' + clusterId);
+    const allPanels = document.querySelectorAll('[id^="cluster-panel-"]');
+    const allArrows = document.querySelectorAll('[id^="cluster-arrow-"]');
+    
+    // Close all other panels and reset arrows
+    allPanels.forEach(p => {
+        if (p.id !== 'cluster-panel-' + clusterId) {
+            p.classList.add('hidden');
+        }
+    });
+    
+    allArrows.forEach(a => {
+        if (a.id !== 'cluster-arrow-' + clusterId) {
+            a.style.transform = 'rotate(0deg)';
+        }
+    });
+    
+    // Toggle current panel and arrow
+    const isHidden = panel.classList.contains('hidden');
+    panel.classList.toggle('hidden');
+    arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('[id^="cluster-dropdown-"]')) {
+        const allPanels = document.querySelectorAll('[id^="cluster-panel-"]');
+        allPanels.forEach(p => p.classList.add('hidden'));
+        const allArrows = document.querySelectorAll('[id^="cluster-arrow-"]');
+        allArrows.forEach(a => a.style.transform = 'rotate(0deg)');
+    }
+});
+
+// Filter state
+let activeFilter = {
+    type: null, // 'cluster', 'office', or 'division'
+    clusterId: null,
+    officeId: null,
+    divisionId: null
+};
+
+// Filter by cluster - shows all offices and divisions in the cluster
+function filterByCluster(clusterId, clusterCode, clusterColor) {
+    activeFilter = {
+        type: 'cluster',
+        clusterId: clusterId,
+        officeId: null,
+        divisionId: null
+    };
+    
+    // Update button label
+    updateClusterButtonLabel(clusterId, clusterCode + ' (All)');
+    
+    // Show reset button
+    showResetButton();
+    
+    // Close dropdown
+    closeAllDropdowns();
+    
+    // Re-render calendar with filter
+    renderCalendar();
+    
+    console.log('Filtering by cluster:', clusterId);
+}
+
+// Filter by office - shows only events from this office and its divisions
+function filterByOffice(officeId, officeCode, clusterId, clusterCode, clusterColor) {
+    activeFilter = {
+        type: 'office',
+        clusterId: clusterId,
+        officeId: officeId,
+        divisionId: null
+    };
+    
+    // Update button label
+    updateClusterButtonLabel(clusterId, clusterCode + ' › ' + officeCode);
+    
+    // Show reset button
+    showResetButton();
+    
+    // Close dropdown
+    closeAllDropdowns();
+    
+    // Re-render calendar with filter
+    renderCalendar();
+    
+    console.log('Filtering by office:', officeId);
+}
+
+// Filter by division - shows only events from this specific division
+function filterByDivision(divisionId, divisionCode, officeId, officeCode, clusterId, clusterCode, clusterColor) {
+    activeFilter = {
+        type: 'division',
+        clusterId: clusterId,
+        officeId: officeId,
+        divisionId: divisionId
+    };
+    
+    // Update button label
+    updateClusterButtonLabel(clusterId, clusterCode + ' › ' + officeCode + ' › ' + divisionCode);
+    
+    // Show reset button
+    showResetButton();
+    
+    // Close dropdown
+    closeAllDropdowns();
+    
+    // Re-render calendar with filter
+    renderCalendar();
+    
+    console.log('Filtering by division:', divisionId);
+}
+
+// Show reset button
+function showResetButton() {
+    const resetBtn = document.getElementById('resetFilterBtn');
+    if (resetBtn) {
+        resetBtn.classList.remove('hidden');
+    }
+    
+    // Show event list sidebar
+    showEventListSidebar();
+}
+
+// Hide reset button
+function hideResetButton() {
+    const resetBtn = document.getElementById('resetFilterBtn');
+    if (resetBtn) {
+        resetBtn.classList.add('hidden');
+    }
+    
+    // Hide event list sidebar
+    hideEventListSidebar();
+}
+
+// Show event list sidebar
+function showEventListSidebar() {
+    const sidebar = document.getElementById('eventListSidebar');
+    if (sidebar) {
+        sidebar.classList.remove('hidden');
+        updateEventList();
+    }
+}
+
+// Hide event list sidebar
+function hideEventListSidebar() {
+    const sidebar = document.getElementById('eventListSidebar');
+    if (sidebar) {
+        sidebar.classList.add('hidden');
+    }
+}
+
+// Update event list in sidebar
+function updateEventList() {
+    const eventListContent = document.getElementById('eventListContent');
+    const eventListCount = document.getElementById('eventListCount');
+    
+    if (!eventListContent || !eventListCount) return;
+    
+    // Get all filtered events for the current month
+    const filteredEvents = getFilteredEventsForMonth();
+    
+    // Update count
+    eventListCount.textContent = `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''}`;
+    
+    // Generate event list HTML
+    if (filteredEvents.length === 0) {
+        eventListContent.innerHTML = `
+            <div class="text-center py-8 text-slate-400">
+                <svg class="w-12 h-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="text-sm">No events found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort events by date
+    filteredEvents.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    
+    // Generate HTML
+    const eventsHTML = filteredEvents.map(event => {
+        const eventDate = new Date(event.startTime);
+        const dateStr = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        
+        return `
+            <div class="border border-slate-200 rounded-lg p-3 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                 style="border-left: 3px solid ${event.effectiveColor};"
+                 onclick='showEventDetail(${JSON.stringify(event).replace(/'/g, "&#39;")})'>
+                <div class="flex items-start justify-between gap-2 mb-2">
+                    <h4 class="text-sm font-semibold text-slate-900 line-clamp-2">${event.title}</h4>
+                    <span class="text-xs text-slate-500 flex-shrink-0">${dateStr}</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-600">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>${timeStr}</span>
+                </div>
+                ${event.location ? `
+                    <div class="flex items-center gap-2 text-xs text-slate-600 mt-1">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span class="truncate">${event.location}</span>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    eventListContent.innerHTML = eventsHTML;
+}
+
+// Get all filtered events for the current month
+function getFilteredEventsForMonth() {
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    
+    let filteredEvents = eventsData.filter(event => {
+        const eventDate = new Date(event.startTime);
+        return eventDate >= firstDay && eventDate <= lastDay;
+    });
+    
+    // Apply active filter
+    if (activeFilter.type) {
+        filteredEvents = filteredEvents.filter(event => {
+            if (activeFilter.type === 'cluster') {
+                return event.cluster_id == activeFilter.clusterId;
+            } else if (activeFilter.type === 'office') {
+                return event.office_id == activeFilter.officeId;
+            } else if (activeFilter.type === 'division') {
+                return event.office_id == activeFilter.officeId;
+            }
+            return true;
+        });
+    }
+    
+    return filteredEvents;
+}
+
+// Update cluster button label
+function updateClusterButtonLabel(clusterId, label) {
+    const labelElement = document.getElementById('cluster-label-' + clusterId);
+    if (labelElement) {
+        labelElement.textContent = label;
+    }
+}
+
+// Close all dropdowns
+function closeAllDropdowns() {
+    const allPanels = document.querySelectorAll('[id^="cluster-panel-"]');
+    allPanels.forEach(p => p.classList.add('hidden'));
+    const allArrows = document.querySelectorAll('[id^="cluster-arrow-"]');
+    allArrows.forEach(a => a.style.transform = 'rotate(0deg)');
+}
+
+// Clear filter (reset to show all)
+function clearFilter() {
+    activeFilter = {
+        type: null,
+        clusterId: null,
+        officeId: null,
+        divisionId: null
+    };
+    
+    // Reset all button labels
+    const allLabels = document.querySelectorAll('[id^="cluster-label-"]');
+    allLabels.forEach(label => {
+        const clusterId = label.id.replace('cluster-label-', '');
+        const btn = document.getElementById('cluster-btn-' + clusterId);
+        if (btn) {
+            // Get original cluster code from button
+            const originalCode = btn.getAttribute('data-original-code');
+            if (originalCode) {
+                label.textContent = originalCode;
+            }
+        }
+    });
+    
+    // Hide reset button
+    hideResetButton();
+    
+    renderCalendar();
+}
+
+// Store original cluster codes on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const allButtons = document.querySelectorAll('[id^="cluster-btn-"]');
+    allButtons.forEach(btn => {
+        const label = btn.querySelector('[id^="cluster-label-"]');
+        if (label) {
+            btn.setAttribute('data-original-code', label.textContent);
+        }
+    });
+});
+
+// View change functions
+let currentView = 'month';
+
+function changeView(view) {
+    currentView = view;
+    
+    // Update button styles
+    document.getElementById('monthViewBtn').className = view === 'month' 
+        ? 'px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors duration-200'
+        : 'px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-md transition-colors duration-200';
+    
+    document.getElementById('weekViewBtn').className = view === 'week'
+        ? 'px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors duration-200'
+        : 'px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-md transition-colors duration-200';
+    
+    document.getElementById('dayViewBtn').className = view === 'day'
+        ? 'px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md transition-colors duration-200'
+        : 'px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-md transition-colors duration-200';
+    
+    // Re-render calendar based on view
+    renderCalendar();
+}
+
+// Close modal when clicking outside
+document.getElementById('eventDetailModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeEventModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeEventModal();
+    }
+});
+
+// Event hover tooltip functions
+function showEventTooltip(mouseEvent, event) {
+    const tooltip = document.getElementById('eventHoverTooltip');
+    
+    // Parse date strings without timezone conversion
+    const [startDatePart, startTimePart] = event.startTime.split(' ');
+    const [startYear, startMonth, startDay] = startDatePart.split('-');
+    const [startHour, startMinute] = startTimePart.split(':');
+    const startDate = new Date(startYear, startMonth - 1, startDay, startHour, startMinute);
+    
+    const [endDatePart, endTimePart] = event.endTime.split(' ');
+    const [endYear, endMonth, endDay] = endDatePart.split('-');
+    const [endHour, endMinute] = endTimePart.split(':');
+    const endDate = new Date(endYear, endMonth - 1, endDay, endHour, endMinute);
+    
+    // Priority badge
+    const priorityColors = {
+        'high': 'tooltip-priority-high',
+        'medium': 'tooltip-priority-medium',
+        'low': 'tooltip-priority-low'
+    };
+    const priorityClass = priorityColors[event.priority] || 'tooltip-priority-low';
+    const priorityText = event.priority.charAt(0).toUpperCase() + event.priority.slice(1);
+    
+    // Meeting type display
+    const meetingTypeIcons = {
+        'in-person': '<svg class="tooltip-icon mr-2 mt-0.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>',
+        'zoom': '<svg class="tooltip-icon mr-2 mt-0.5" style="color: #2D8CFF;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>',
+        'hybrid': '<svg class="tooltip-icon mr-2 mt-0.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>',
+        'other': '<svg class="tooltip-icon mr-2 mt-0.5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+    };
+    const meetingTypeLabels = {
+        'in-person': 'In-Person',
+        'zoom': 'Zoom Meeting',
+        'hybrid': 'Hybrid',
+        'other': 'Other'
+    };
+    const meetingTypeIcon = meetingTypeIcons[event.meetingType] || meetingTypeIcons['other'];
+    const meetingTypeLabel = meetingTypeLabels[event.meetingType] || 'Other';
+    
+    const tooltipContent = `
+        <div class="space-y-3">
+            <div>
+                <div class="font-semibold text-slate-900 text-base mb-2">${event.title}</div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="tooltip-badge ${priorityClass}">${priorityText}</span>
+                    <span class="tooltip-badge tooltip-status">Confirmed</span>
+                </div>
+            </div>
+            
+            <div class="space-y-2 text-sm">
+                <div class="flex items-start text-slate-700">
+                    <svg class="tooltip-icon mr-2 mt-0.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        ${(() => {
+                            // Check if event spans multiple days
+                            const startDateOnly = new Date(startYear, startMonth - 1, startDay);
+                            const endDateOnly = new Date(endYear, endMonth - 1, endDay);
+                            const isMultiDay = startDateOnly.getTime() !== endDateOnly.getTime();
+                            
+                            if (isMultiDay) {
+                                // Multi-day event: show start date - end date with times
+                                return `<div class="font-medium">${startDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${!event.allDay ? startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'All Day'} - ${endDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${!event.allDay ? endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'All Day'}</div>`;
+                            } else {
+                                // Single day event: show only start and end times
+                                return `<div class="font-medium">${startDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${!event.allDay ? startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' - ' + endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'All Day'}</div>`;
+                            }
+                        })()}
+                    </div>
+                </div>
+                
+                <div class="flex items-start text-slate-700">
+                    ${meetingTypeIcon}
+                    <div>${meetingTypeLabel}</div>
+                </div>
+                
+                ${event.location ? `
+                <div class="flex items-start text-slate-700">
+                    <svg class="tooltip-icon mr-2 mt-0.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <div>${event.location}</div>
+                </div>
+                ` : ''}
+                
+                ${event.zoomLink ? `
+                <div class="flex items-start text-slate-700">
+                    <svg class="tooltip-icon mr-2 mt-0.5" style="color: #2D8CFF;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    <div class="truncate">
+                        <a href="${event.zoomLink}" target="_blank" rel="noopener noreferrer" class="hover:underline" style="color: #2D8CFF;">Join Zoom Meeting</a>
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${event.description ? `
+                <div class="flex items-start text-slate-600">
+                    <svg class="tooltip-icon mr-2 mt-0.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                    </svg>
+                    <div class="line-clamp-2">${event.description}</div>
+                </div>
+                ` : ''}
+            </div>
+            
+            <div class="pt-2 border-t border-slate-200 flex items-center justify-center text-xs text-slate-500">
+                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Click to view full details
+            </div>
+        </div>
+    `;
+    
+    tooltip.innerHTML = tooltipContent;
+    tooltip.classList.add('show');
+    
+    // Position tooltip near mouse with offset
+    const updatePosition = (e) => {
+        const offsetX = 15;
+        const offsetY = 15;
+        let left = e.clientX + offsetX;
+        let top = e.clientY + offsetY;
+        
+        // Get tooltip dimensions after content is set
+        const tooltipRect = tooltip.getBoundingClientRect();
+        
+        // Adjust if tooltip goes off right edge
+        if (left + tooltipRect.width > window.innerWidth - 10) {
+            left = e.clientX - tooltipRect.width - offsetX;
+        }
+        
+        // Adjust if tooltip goes off bottom edge
+        if (top + tooltipRect.height > window.innerHeight - 10) {
+            top = e.clientY - tooltipRect.height - offsetY;
+        }
+        
+        // Ensure tooltip doesn't go off left edge
+        if (left < 10) {
+            left = 10;
+        }
+        
+        // Ensure tooltip doesn't go off top edge
+        if (top < 10) {
+            top = 10;
+        }
+        
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+    };
+    
+    updatePosition(mouseEvent);
+    
+    // Store the update function so we can track mouse movement
+    mouseEvent.target._tooltipUpdate = updatePosition;
+    mouseEvent.target.addEventListener('mousemove', updatePosition);
+}
+
+function hideEventTooltip() {
+    const tooltip = document.getElementById('eventHoverTooltip');
+    tooltip.classList.remove('show');
+    
+    // Remove mousemove listener from all calendar event items
+    document.querySelectorAll('.calendar-event-item').forEach(item => {
+        if (item._tooltipUpdate) {
+            item.removeEventListener('mousemove', item._tooltipUpdate);
+            delete item._tooltipUpdate;
+        }
+    });
+}
+</script>
+{% endblock %}

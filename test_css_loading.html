@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Loading Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">CSS Loading Test</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- FullCalendar CSS Test -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">FullCalendar CSS Test</h2>
+                <div id="css-test-results" class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <div id="primary-cdn-status" class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                        <span>Primary CDN (jsDelivr)</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div id="fallback-cdn-status" class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                        <span>Fallback CDN (unpkg)</span>
+                    </div>
+                </div>
+                <button onclick="testCSSLoading()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    Test CSS Loading
+                </button>
+            </div>
+            
+            <!-- Error Handling Test -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Error Handling Test</h2>
+                <div id="error-test-results" class="text-sm text-gray-600">
+                    <p>This tests the error handling mechanisms:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                        <li>CSS fallback loading</li>
+                        <li>JavaScript error handling</li>
+                        <li>User-friendly error messages</li>
+                        <li>Automatic retry mechanisms</li>
+                    </ul>
+                </div>
+                <button onclick="testErrorHandling()" class="mt-4 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+                    Test Error Handling
+                </button>
+            </div>
+        </div>
+        
+        <!-- Test Calendar Container -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+            <h2 class="text-xl font-semibold mb-4">Calendar Test</h2>
+            <div id="test-calendar" class="min-h-[400px] border border-gray-200 rounded-lg"></div>
+        </div>
+        
+        <!-- Console Output -->
+        <div class="bg-gray-900 text-green-400 rounded-lg p-4 mt-6">
+            <h3 class="text-lg font-semibold mb-2">Console Output</h3>
+            <div id="console-output" class="font-mono text-sm max-h-40 overflow-y-auto">
+                <div>Ready to test...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FullCalendar CSS with fallback -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet' 
+          onerror="this.onerror=null;this.href='https://unpkg.com/fullcalendar@6.1.15/index.global.min.css';" 
+          onload="updateStatus('primary-cdn-status', true)" />
+    
+    <!-- FullCalendar JS with fallback -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js' 
+            onerror="this.onerror=null;var script=document.createElement('script');script.src='https://unpkg.com/fullcalendar@6.1.15/index.global.min.js';document.head.appendChild(script);"></script>
+
+    <script>
+        function log(message) {
+            const output = document.getElementById('console-output');
+            const div = document.createElement('div');
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateStatus(elementId, success) {
+            const element = document.getElementById(elementId);
+            if (success) {
+                element.className = 'w-3 h-3 bg-green-500 rounded-full';
+                log(`✅ ${elementId.replace('-', ' ')} loaded successfully`);
+            } else {
+                element.className = 'w-3 h-3 bg-red-500 rounded-full';
+                log(`❌ ${elementId.replace('-', ' ')} failed to load`);
+            }
+        }
+        
+        function testCSSLoading() {
+            log('Testing CSS loading...');
+            
+            // Test if FullCalendar CSS is loaded
+            const testElement = document.createElement('div');
+            testElement.className = 'fc-event';
+            testElement.style.position = 'absolute';
+            testElement.style.visibility = 'hidden';
+            document.body.appendChild(testElement);
+            
+            const computedStyle = window.getComputedStyle(testElement);
+            const hasFullCalendarStyles = computedStyle.position === 'relative' || computedStyle.display === 'block';
+            
+            document.body.removeChild(testElement);
+            
+            if (hasFullCalendarStyles) {
+                log('✅ FullCalendar CSS loaded successfully');
+                updateStatus('primary-cdn-status', true);
+            } else {
+                log('⚠️ FullCalendar CSS may not be loaded properly');
+                updateStatus('primary-cdn-status', false);
+                
+                // Try fallback
+                log('Attempting fallback CSS loading...');
+                const fallbackLink = document.createElement('link');
+                fallbackLink.rel = 'stylesheet';
+                fallbackLink.href = 'https://unpkg.com/fullcalendar@6.1.15/index.global.min.css';
+                fallbackLink.onload = () => {
+                    log('✅ Fallback CSS loaded successfully');
+                    updateStatus('fallback-cdn-status', true);
+                };
+                fallbackLink.onerror = () => {
+                    log('❌ Fallback CSS failed to load');
+                    updateStatus('fallback-cdn-status', false);
+                };
+                document.head.appendChild(fallbackLink);
+            }
+        }
+        
+        function testErrorHandling() {
+            log('Testing error handling mechanisms...');
+            
+            // Test FullCalendar availability
+            if (typeof FullCalendar === 'undefined') {
+                log('❌ FullCalendar library not available');
+                return;
+            }
+            
+            log('✅ FullCalendar library is available');
+            
+            // Test calendar initialization
+            try {
+                const calendarEl = document.getElementById('test-calendar');
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next',
+                        center: 'title',
+                        right: 'dayGridMonth'
+                    },
+                    height: 400
+                });
+                
+                calendar.render();
+                log('✅ Calendar initialized successfully');
+                
+            } catch (error) {
+                log(`❌ Calendar initialization failed: ${error.message}`);
+            }
+        }
+        
+        // Auto-test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                log('Page loaded, running automatic tests...');
+                testCSSLoading();
+                setTimeout(testErrorHandling, 1000);
+            }, 500);
+        });
+        
+        // Monitor for CSS loading errors
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'LINK') {
+                log(`❌ CSS loading error: ${e.target.href}`);
+            }
+        }, true);
+    </script>
+</body>
+</html>

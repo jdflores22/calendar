@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Event Fixes Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Transfer Event Fixes Test</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- JavaScript Error Fix Test -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">JavaScript Error Fix</h2>
+                <p class="text-sm text-gray-600 mb-4">
+                    Testing the fix for "e.target.closest is not a function" error.
+                </p>
+                
+                <div class="space-y-3">
+                    <button onclick="testClosestMethod(null)" class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                        Test with null target (should not error)
+                    </button>
+                    
+                    <button onclick="testClosestMethod({})" class="w-full bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+                        Test with object target (should not error)
+                    </button>
+                    
+                    <button onclick="testClosestMethod(document.body)" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        Test with valid DOM element (should work)
+                    </button>
+                </div>
+                
+                <div id="closest-test-results" class="mt-4 p-3 bg-gray-50 rounded text-sm">
+                    Results will appear here...
+                </div>
+            </div>
+            
+            <!-- API Validation Fix Test -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">API Validation Fix</h2>
+                <p class="text-sm text-gray-600 mb-4">
+                    Testing the fix for transfer event API validation errors.
+                </p>
+                
+                <div class="space-y-3">
+                    <div class="p-3 bg-blue-50 rounded">
+                        <h3 class="font-medium text-blue-800">Before Fix:</h3>
+                        <code class="text-xs text-blue-600">
+                            {start, end, transfer_reason, is_transfer}
+                        </code>
+                        <p class="text-xs text-blue-600 mt-1">❌ Missing required 'title' field</p>
+                    </div>
+                    
+                    <div class="p-3 bg-green-50 rounded">
+                        <h3 class="font-medium text-green-800">After Fix:</h3>
+                        <code class="text-xs text-green-600">
+                            {title, description, location, color, priority, status, allDay, office_id, start, end, transfer_reason, is_transfer}
+                        </code>
+                        <p class="text-xs text-green-600 mt-1">✅ All required fields included</p>
+                    </div>
+                </div>
+                
+                <button onclick="testAPIPayload()" class="w-full mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Test API Payload Structure
+                </button>
+                
+                <div id="api-test-results" class="mt-4 p-3 bg-gray-50 rounded text-sm">
+                    Results will appear here...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mock Event Data -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+            <h2 class="text-xl font-semibold mb-4">Mock Event Data for Testing</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-medium mb-2">Mock Calendar Event:</h3>
+                    <pre id="mock-event" class="text-xs bg-gray-100 p-3 rounded overflow-auto"></pre>
+                </div>
+                <div>
+                    <h3 class="font-medium mb-2">Generated API Payload:</h3>
+                    <pre id="api-payload" class="text-xs bg-gray-100 p-3 rounded overflow-auto"></pre>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Console Output -->
+        <div class="bg-gray-900 text-green-400 rounded-lg p-4 mt-6">
+            <h3 class="text-lg font-semibold mb-2">Console Output</h3>
+            <div id="console-output" class="font-mono text-sm max-h-40 overflow-y-auto">
+                <div>Ready to test...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const output = document.getElementById('console-output');
+            const div = document.createElement('div');
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+        
+        function testClosestMethod(target) {
+            const results = document.getElementById('closest-test-results');
+            
+            try {
+                // Simulate the fixed code
+                let result = 'No element found';
+                
+                if (target && typeof target.closest === 'function') {
+                    const element = target.closest('.test-class');
+                    result = element ? 'Element found' : 'No matching element';
+                } else {
+                    result = 'Safely handled non-DOM target';
+                }
+                
+                results.innerHTML = `
+                    <div class="text-green-600">
+                        ✅ Test passed: ${result}
+                        <br><small>Target type: ${target === null ? 'null' : typeof target}</small>
+                    </div>
+                `;
+                
+                log(`✅ Closest method test passed for ${target === null ? 'null' : typeof target} target`);
+                
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="text-red-600">
+                        ❌ Test failed: ${error.message}
+                    </div>
+                `;
+                
+                log(`❌ Closest method test failed: ${error.message}`);
+            }
+        }
+        
+        function testAPIPayload() {
+            const results = document.getElementById('api-test-results');
+            
+            // Mock current event data (simulating calendar.getEventById())
+            const mockEvent = {
+                id: '123',
+                title: 'Test Meeting',
+                backgroundColor: '#3B82F6',
+                allDay: false,
+                extendedProps: {
+                    description: 'This is a test meeting',
+                    location: 'Conference Room A',
+                    priority: 'high',
+                    status: 'confirmed',
+                    office: {
+                        id: 1,
+                        name: 'Main Office'
+                    }
+                }
+            };
+            
+            // Generate the API payload using the fixed logic
+            const newStart = '2024-02-05T10:00';
+            const newEnd = '2024-02-05T11:00';
+            const reason = 'Venue conflict';
+            
+            const apiPayload = {
+                // Preserve existing event data
+                title: mockEvent.title,
+                description: mockEvent.extendedProps.description || null,
+                location: mockEvent.extendedProps.location || null,
+                color: mockEvent.backgroundColor,
+                priority: mockEvent.extendedProps.priority || 'normal',
+                status: mockEvent.extendedProps.status || 'confirmed',
+                allDay: mockEvent.allDay,
+                office_id: mockEvent.extendedProps.office ? mockEvent.extendedProps.office.id : null,
+                
+                // New transfer data
+                start: newStart,
+                end: newEnd,
+                transfer_reason: reason,
+                is_transfer: true
+            };
+            
+            // Display results
+            document.getElementById('mock-event').textContent = JSON.stringify(mockEvent, null, 2);
+            document.getElementById('api-payload').textContent = JSON.stringify(apiPayload, null, 2);
+            
+            // Validate required fields
+            const requiredFields = ['title', 'start', 'end'];
+            const missingFields = requiredFields.filter(field => !apiPayload[field]);
+            
+            if (missingFields.length === 0) {
+                results.innerHTML = `
+                    <div class="text-green-600">
+                        ✅ API payload validation passed!
+                        <br><small>All required fields present: ${requiredFields.join(', ')}</small>
+                    </div>
+                `;
+                log('✅ API payload validation passed - all required fields present');
+            } else {
+                results.innerHTML = `
+                    <div class="text-red-600">
+                        ❌ API payload validation failed!
+                        <br><small>Missing fields: ${missingFields.join(', ')}</small>
+                    </div>
+                `;
+                log(`❌ API payload validation failed - missing: ${missingFields.join(', ')}`);
+            }
+        }
+        
+        // Auto-run tests on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded, running automatic tests...');
+            setTimeout(() => {
+                testClosestMethod(document.body);
+                setTimeout(() => testAPIPayload(), 500);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

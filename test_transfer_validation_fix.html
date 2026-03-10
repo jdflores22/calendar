@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Event Validation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 8px 16px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Transfer Event Validation Test</h1>
+    
+    <div class="test-section info">
+        <h3>Test Scenarios</h3>
+        <p>This page tests the validation fixes for the transfer event functionality:</p>
+        <ul>
+            <li>Color format validation (#XXXXXX)</li>
+            <li>Required field validation (title)</li>
+            <li>Boolean field handling</li>
+            <li>Integer field handling (office_id)</li>
+            <li>Choice field validation (priority, status)</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Data Validation</h3>
+        <button onclick="testColorValidation()">Test Color Validation</button>
+        <button onclick="testBooleanHandling()">Test Boolean Handling</button>
+        <button onclick="testRequiredFields()">Test Required Fields</button>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Sample Transfer Request Data</h3>
+        <pre id="sampleData"></pre>
+        <button onclick="generateSampleData()">Generate Sample Data</button>
+        <button onclick="validateSampleData()">Validate Sample Data</button>
+    </div>
+
+    <script>
+        function testColorValidation() {
+            const testColors = [
+                '#FF0000',      // Valid
+                'FF0000',       // Missing #
+                '#ff0000',      // Lowercase (should be valid)
+                '#FFF',         // Too short
+                '#GGGGGG',      // Invalid hex
+                '',             // Empty
+                null,           // Null
+                '#123456'       // Valid
+            ];
+            
+            const results = testColors.map(color => {
+                const isValid = /^#[0-9A-Fa-f]{6}$/.test(color);
+                const fixed = fixColorFormat(color);
+                return {
+                    input: color,
+                    isValid: isValid,
+                    fixed: fixed,
+                    finalValid: /^#[0-9A-Fa-f]{6}$/.test(fixed)
+                };
+            });
+            
+            displayResults('Color Validation Results', results);
+        }
+        
+        function fixColorFormat(color) {
+            if (!color) return '#007BFF';
+            
+            // Remove # if present
+            let cleanColor = color.replace('#', '');
+            
+            // Check if it's valid hex
+            if (!/^[0-9A-Fa-f]{6}$/.test(cleanColor)) {
+                return '#007BFF'; // Default
+            }
+            
+            return '#' + cleanColor.toUpperCase();
+        }
+        
+        function testBooleanHandling() {
+            const testValues = [
+                true,
+                false,
+                '1',
+                '0',
+                1,
+                0,
+                'true',
+                'false',
+                '',
+                null,
+                undefined
+            ];
+            
+            const results = testValues.map(value => {
+                const converted = value === true || value === '1' || value === 1;
+                return {
+                    input: value,
+                    type: typeof value,
+                    converted: converted
+                };
+            });
+            
+            displayResults('Boolean Handling Results', results);
+        }
+        
+        function testRequiredFields() {
+            const testTitles = [
+                'Valid Event Title',
+                '',
+                '   ',
+                null,
+                undefined,
+                'A',
+                'Very Long Event Title That Should Still Be Valid Because It Has Content'
+            ];
+            
+            const results = testTitles.map(title => {
+                const trimmed = title ? title.trim() : '';
+                const isValid = trimmed.length > 0;
+                return {
+                    input: title,
+                    trimmed: trimmed,
+                    isValid: isValid
+                };
+            });
+            
+            displayResults('Required Field Validation Results', results);
+        }
+        
+        function generateSampleData() {
+            const sampleData = {
+                title: 'Sample Transfer Event',
+                description: 'This is a test event for transfer validation',
+                location: 'Test Location',
+                color: '#3B82F6',
+                priority: 'normal',
+                status: 'confirmed',
+                allDay: false,
+                office_id: 1,
+                isRecurring: false,
+                start: '2026-02-05T09:00',
+                end: '2026-02-05T10:00'
+            };
+            
+            document.getElementById('sampleData').textContent = JSON.stringify(sampleData, null, 2);
+        }
+        
+        function validateSampleData() {
+            const sampleDataText = document.getElementById('sampleData').textContent;
+            if (!sampleDataText) {
+                alert('Please generate sample data first');
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(sampleDataText);
+                const validation = validateEventData(data);
+                displayResults('Sample Data Validation', [validation]);
+            } catch (e) {
+                alert('Invalid JSON in sample data');
+            }
+        }
+        
+        function validateEventData(data) {
+            const errors = [];
+            
+            // Title validation
+            const title = data.title ? data.title.trim() : '';
+            if (!title) {
+                errors.push('Title is required');
+            }
+            
+            // Color validation
+            if (!data.color || !/^#[0-9A-Fa-f]{6}$/.test(data.color)) {
+                errors.push('Invalid color format (must be #XXXXXX)');
+            }
+            
+            // Priority validation
+            if (!['low', 'normal', 'high', 'urgent'].includes(data.priority)) {
+                errors.push('Invalid priority value');
+            }
+            
+            // Status validation
+            if (!['confirmed', 'tentative', 'cancelled'].includes(data.status)) {
+                errors.push('Invalid status value');
+            }
+            
+            // Date validation
+            if (!data.start || !data.end) {
+                errors.push('Start and end times are required');
+            } else if (new Date(data.end) <= new Date(data.start)) {
+                errors.push('End time must be after start time');
+            }
+            
+            return {
+                data: data,
+                isValid: errors.length === 0,
+                errors: errors
+            };
+        }
+        
+        function displayResults(title, results) {
+            const resultsDiv = document.getElementById('testResults');
+            const html = `
+                <h4>${title}</h4>
+                <pre>${JSON.stringify(results, null, 2)}</pre>
+            `;
+            resultsDiv.innerHTML = html;
+        }
+        
+        // Initialize
+        generateSampleData();
+    </script>
+</body>
+</html>

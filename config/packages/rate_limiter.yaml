@@ -1,0 +1,26 @@
+framework:
+    rate_limiter:
+        login:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+            
+        api_login:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '15 minutes'
+            
+        password_reset:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '1 hour'
+            
+        api:
+            policy: 'sliding_window'
+            limit: 100
+            interval: '1 hour'
+            
+        api_strict:
+            policy: 'sliding_window'
+            limit: 1000
+            interval: '1 hour'

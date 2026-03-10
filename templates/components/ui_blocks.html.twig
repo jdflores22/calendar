@@ -1,0 +1,429 @@
+{# TESDA Calendar System - UI Blocks and Components #}
+{# This file contains reusable UI blocks using Tailwind UI patterns #}
+
+{# Stats Grid Block #}
+{% macro stats_grid(stats) %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    {% for stat in stats %}
+    <div class="stats-card">
+        <div class="card-body">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    {% if stat.icon %}
+                        {{ stat.icon|raw }}
+                    {% else %}
+                        <svg class="h-8 w-8 text-tesda-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    {% endif %}
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="stats-label">{{ stat.label }}</dt>
+                        <dd class="stats-value">{{ stat.value }}</dd>
+                        {% if stat.change is defined %}
+                            <dd class="stats-change-{{ stat.change.type }}">
+                                {% if stat.change.type == 'positive' %}
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L10 4.414 4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                {% else %}
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 15.586l5.293-5.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                {% endif %}
+                                {{ stat.change.value }}
+                            </dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endmacro %}
+
+{# Feature Grid Block #}
+{% macro feature_grid(features) %}
+<div class="feature-grid">
+    {% for feature in features %}
+    <div class="feature-card">
+        <div class="feature-icon">
+            {{ feature.icon|raw }}
+        </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+        {% if feature.link %}
+            <div class="mt-4">
+                <a href="{{ feature.link.url }}" class="btn-link">
+                    {{ feature.link.text }}
+                    <svg class="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endmacro %}
+
+{# Event Card Block #}
+{% macro event_card(event, show_actions = true) %}
+<div class="event-card event-card-primary">
+    <div class="card-body">
+        {% if event.status is defined %}
+            <div class="event-status">
+                {% if event.status == 'live' %}
+                    <span class="event-status-live">Live</span>
+                {% elseif event.status == 'upcoming' %}
+                    <span class="event-status-upcoming">Upcoming</span>
+                {% else %}
+                    <span class="event-status-completed">Completed</span>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <div class="event-time">
+            {{ event.startTime|ph_date('M j, Y g:i A') }}
+            {% if event.endTime %}
+                - {{ event.endTime|ph_time('g:i A') }}
+            {% endif %}
+        </div>
+        
+        <h3 class="event-title">{{ event.title }}</h3>
+        
+        {% if event.description %}
+            <p class="event-description">{{ event.description|length > 120 ? event.description|slice(0, 120) ~ '...' : event.description }}</p>
+        {% endif %}
+        
+        <div class="event-meta">
+            {% if event.location %}
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {{ event.location }}
+                </div>
+            {% endif %}
+            
+            {% if event.office %}
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full mr-2" style="background-color: {{ event.office.color }}"></div>
+                    {{ event.office.name }}
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if show_actions %}
+            <div class="mt-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn-sm btn-outline">
+                        View Details
+                    </a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_event_edit', {id: event.id}) }}" class="btn-sm btn-secondary">
+                            Edit
+                        </a>
+                    {% endif %}
+                </div>
+                
+                {% if event.attachments is defined and event.attachments|length > 0 %}
+                    <div class="flex items-center text-sm text-gray-500">
+                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                        {{ event.attachments|length }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+{# Data Table Block #}
+{% macro data_table(config) %}
+<div class="datatable">
+    {% if config.header is defined %}
+        <div class="datatable-header">
+            <div class="datatable-search">
+                <div class="relative">
+                    <div class="datatable-search-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" class="datatable-search-input" placeholder="{{ config.searchPlaceholder|default('Search...') }}">
+                </div>
+            </div>
+            
+            {% if config.actions is defined %}
+                <div class="datatable-actions">
+                    {% for action in config.actions %}
+                        <a href="{{ action.url }}" class="btn-{{ action.type|default('primary') }} btn-sm">
+                            {% if action.icon %}{{ action.icon|raw }}{% endif %}
+                            {{ action.text }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    <div class="table-container">
+        <table class="table">
+            <thead class="table-header">
+                <tr>
+                    {% for column in config.columns %}
+                        <th class="table-header-cell{% if column.sortable %} table-header-cell-sortable{% endif %}">
+                            {{ column.label }}
+                            {% if column.sortable %}
+                                <svg class="w-4 h-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                                </svg>
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                    {% if config.actions is defined %}
+                        <th class="table-header-cell">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                {% if config.data|length > 0 %}
+                    {% for row in config.data %}
+                        <tr class="table-row">
+                            {% for column in config.columns %}
+                                <td class="table-cell{% if column.align %} table-cell-{{ column.align }}{% endif %}">
+                                    {% if column.template is defined %}
+                                        {{ include(column.template, {item: row}) }}
+                                    {% else %}
+                                        {{ attribute(row, column.field) }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                            {% if config.rowActions is defined %}
+                                <td class="table-cell-actions">
+                                    {% for action in config.rowActions %}
+                                        <a href="{{ action.url|replace({'ID': row.id}) }}" 
+                                           class="btn-{{ action.type|default('secondary') }} btn-sm"
+                                           {% if action.confirm %}onclick="return confirm('{{ action.confirm }}')"{% endif %}>
+                                            {% if action.icon %}{{ action.icon|raw }}{% endif %}
+                                            {{ action.text }}
+                                        </a>
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="{{ config.columns|length + (config.rowActions is defined ? 1 : 0) }}" class="table-empty">
+                            <div class="table-empty-icon">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                </svg>
+                            </div>
+                            <h3 class="table-empty-title">{{ config.emptyTitle|default('No data found') }}</h3>
+                            <p class="table-empty-description">{{ config.emptyDescription|default('There are no items to display.') }}</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if config.pagination is defined %}
+        <div class="datatable-footer">
+            <div class="datatable-info">
+                Showing {{ config.pagination.from }} to {{ config.pagination.to }} of {{ config.pagination.total }} results
+            </div>
+            <div class="datatable-pagination">
+                {% if config.pagination.prevUrl %}
+                    <a href="{{ config.pagination.prevUrl }}" class="pagination-btn">Previous</a>
+                {% else %}
+                    <span class="pagination-btn-disabled">Previous</span>
+                {% endif %}
+                
+                {% for page in config.pagination.pages %}
+                    {% if page.current %}
+                        <span class="pagination-btn-active">{{ page.number }}</span>
+                    {% else %}
+                        <a href="{{ page.url }}" class="pagination-btn">{{ page.number }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if config.pagination.nextUrl %}
+                    <a href="{{ config.pagination.nextUrl }}" class="pagination-btn">Next</a>
+                {% else %}
+                    <span class="pagination-btn-disabled">Next</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# Alert Block #}
+{% macro alert(type, title, message, dismissible = true, actions = null) %}
+<div class="alert alert-{{ type }}{% if dismissible %} alert-dismissible{% endif %}" role="alert">
+    {% if title %}
+        <div class="alert-title">{{ title }}</div>
+    {% endif %}
+    <div class="alert-message">{{ message|raw }}</div>
+    
+    {% if actions %}
+        <div class="alert-actions">
+            {% for action in actions %}
+                <a href="{{ action.url }}" class="btn-sm btn-{{ action.type|default('primary') }}">
+                    {{ action.text }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {% if dismissible %}
+        <button class="alert-close" onclick="this.parentElement.remove()">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# Modal Block #}
+{% macro modal(id, title, size = 'md') %}
+<div id="{{ id }}" class="modal-overlay hidden opacity-0 transition-opacity duration-200">
+    <div class="modal-container modal-container-{{ size }} scale-95 opacity-0 transition-all duration-200">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ title }}</h3>
+            <button class="modal-close" onclick="window.modalManager.close()">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            {{ block('modal_body') }}
+        </div>
+        <div class="modal-footer">
+            {{ block('modal_footer') }}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{# Form Field Block #}
+{% macro form_field(field, options = {}) %}
+<div class="form-group">
+    {% set required = options.required|default(false) %}
+    {% set help = options.help|default(null) %}
+    {% set error = options.error|default(null) %}
+    
+    <label for="{{ field.name }}" class="form-label{% if required %} form-label-required{% endif %}">
+        {{ field.label }}
+    </label>
+    
+    {% if field.type == 'textarea' %}
+        <textarea 
+            id="{{ field.name }}" 
+            name="{{ field.name }}" 
+            class="form-textarea{% if error %} form-input-error{% endif %}"
+            {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+            {% if required %}required{% endif %}
+        >{{ field.value|default('') }}</textarea>
+    {% elseif field.type == 'select' %}
+        <select 
+            id="{{ field.name }}" 
+            name="{{ field.name }}" 
+            class="form-select{% if error %} form-input-error{% endif %}"
+            {% if required %}required{% endif %}
+        >
+            {% if field.placeholder %}
+                <option value="">{{ field.placeholder }}</option>
+            {% endif %}
+            {% for option in field.options %}
+                <option value="{{ option.value }}" {% if option.value == field.value %}selected{% endif %}>
+                    {{ option.label }}
+                </option>
+            {% endfor %}
+        </select>
+    {% else %}
+        <input 
+            type="{{ field.type|default('text') }}" 
+            id="{{ field.name }}" 
+            name="{{ field.name }}" 
+            value="{{ field.value|default('') }}"
+            class="form-input{% if error %} form-input-error{% endif %}"
+            {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+            {% if required %}required{% endif %}
+        >
+    {% endif %}
+    
+    {% if error %}
+        <div class="form-error" data-error="{{ field.name }}">
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            {{ error }}
+        </div>
+    {% endif %}
+    
+    {% if help %}
+        <div class="form-help">{{ help }}</div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# Loading Skeleton Block #}
+{% macro loading_skeleton(type = 'card') %}
+{% if type == 'card' %}
+    <div class="card">
+        <div class="card-body space-y-4">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text w-3/4"></div>
+        </div>
+    </div>
+{% elseif type == 'list' %}
+    {% for i in 1..5 %}
+        <div class="flex items-center space-x-4 p-4">
+            <div class="skeleton-avatar"></div>
+            <div class="flex-1 space-y-2">
+                <div class="skeleton-text w-1/4"></div>
+                <div class="skeleton-text w-3/4"></div>
+            </div>
+        </div>
+    {% endfor %}
+{% elseif type == 'table' %}
+    <div class="table-container">
+        <table class="table">
+            <thead class="table-header">
+                <tr>
+                    {% for i in 1..4 %}
+                        <th class="table-header-cell">
+                            <div class="skeleton-text w-20"></div>
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                {% for i in 1..5 %}
+                    <tr class="table-row">
+                        {% for j in 1..4 %}
+                            <td class="table-cell">
+                                <div class="skeleton-text"></div>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endmacro %}

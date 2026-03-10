@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Calendar API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Live Calendar API Test</h1>
+    <p>This page will fetch the actual calendar API data and test the JavaScript processing.</p>
+    
+    <div id="results">
+        <p>Loading...</p>
+    </div>
+
+    <script>
+        async function testCalendarAPI() {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                // Fetch calendar events for February 2026
+                const response = await fetch('/calendar/events?start=2026-02-01&end=2026-02-28', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const events = await response.json();
+                
+                // Find Event 76
+                const event76 = events.find(event => event.id == 76);
+                
+                let html = '<h2>API Response Test</h2>';
+                
+                if (!event76) {
+                    html += '<p class="fail">❌ Event 76 not found in API response</p>';
+                    html += '<h3>Available Events:</h3>';
+                    html += '<ul>';
+                    events.forEach(event => {
+                        html += `<li>ID: ${event.id}, Title: ${event.title}, Start: ${event.start}</li>`;
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<table>';
+                    html += '<tr><th>Property</th><th>Value</th><th>Expected</th><th>Status</th></tr>';
+                    
+                    const startCorrect = event76.start.includes('T00:00:00');
+                    const endCorrect = event76.end.includes('T02:00:00');
+                    
+                    html += `<tr><td>Event ID</td><td>${event76.id}</td><td>76</td><td class="pass">✅ CORRECT</td></tr>`;
+                    html += `<tr><td>Title</td><td>${event76.title}</td><td>Trial Event</td><td class="pass">✅ CORRECT</td></tr>`;
+                    html += `<tr><td>Start Time</td><td><strong>${event76.start}</strong></td><td>2026-02-12T00:00:00+08:00</td><td class="${startCorrect ? 'pass' : 'fail'}">${startCorrect ? '✅ CORRECT' : '❌ WRONG'}</td></tr>`;
+                    html += `<tr><td>End Time</td><td><strong>${event76.end}</strong></td><td>2026-02-12T02:00:00+08:00</td><td class="${endCorrect ? 'pass' : 'fail'}">${endCorrect ? '✅ CORRECT' : '❌ WRONG'}</td></tr>`;
+                    html += '</table>';
+                    
+                    // Test JavaScript processing
+                    html += '<h2>JavaScript Processing Test</h2>';
+                    
+                    const startDate = new Date(event76.start);
+                    const jsTime1 = startDate.toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'Asia/Manila'
+                    });
+                    
+                    const jsTime2 = startDate.toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit',
+                        hour12: true
+                        // No timeZone specified - uses browser default
+                    });
+                    
+                    html += '<table>';
+                    html += '<tr><th>JavaScript Method</th><th>Result</th><th>Expected</th><th>Status</th></tr>';
+                    
+                    const js1Correct = jsTime1 === '12:00 AM';
+                    const js2Correct = jsTime2 === '12:00 AM';
+                    
+                    html += `<tr><td>With timeZone: 'Asia/Manila'</td><td><strong>${jsTime1}</strong></td><td>12:00 AM</td><td class="${js1Correct ? 'pass' : 'fail'}">${js1Correct ? '✅ CORRECT' : '❌ WRONG'}</td></tr>`;
+                    html += `<tr><td>Without timeZone (browser default)</td><td><strong>${jsTime2}</strong></td><td>12:00 AM</td><td class="${js2Correct ? 'pass' : 'fail'}">${js2Correct ? '✅ CORRECT' : '❌ WRONG'}</td></tr>`;
+                    html += '</table>';
+                    
+                    // Show raw date object info
+                    html += '<h2>Date Object Analysis</h2>';
+                    html += '<table>';
+                    html += '<tr><th>Property</th><th>Value</th></tr>';
+                    html += `<tr><td>Raw Date String</td><td>${event76.start}</td></tr>`;
+                    html += `<tr><td>Date Object</td><td>${startDate.toString()}</td></tr>`;
+                    html += `<tr><td>UTC String</td><td>${startDate.toUTCString()}</td></tr>`;
+                    html += `<tr><td>ISO String</td><td>${startDate.toISOString()}</td></tr>`;
+                    html += `<tr><td>getHours()</td><td>${startDate.getHours()}</td></tr>`;
+                    html += `<tr><td>getTimezoneOffset()</td><td>${startDate.getTimezoneOffset()} minutes</td></tr>`;
+                    html += '</table>';
+                    
+                    // Diagnosis
+                    html += '<h2>🔍 Diagnosis</h2>';
+                    html += '<div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #007bff;">';
+                    
+                    if (startCorrect && js1Correct) {
+                        html += '<h3 class="pass">✅ EVERYTHING IS WORKING CORRECTLY!</h3>';
+                        html += '<p>The API is sending correct data and JavaScript is processing it correctly.</p>';
+                        html += '<p><strong>The calendar should show 12:00 AM.</strong></p>';
+                        html += '<p>If you still see 8:00 AM, try:</p>';
+                        html += '<ul>';
+                        html += '<li><strong>Hard refresh</strong> the calendar page (Ctrl+F5)</li>';
+                        html += '<li><strong>Clear browser cache</strong> completely</li>';
+                        html += '<li><strong>Open in incognito/private window</strong></li>';
+                        html += '</ul>';
+                    } else if (!startCorrect) {
+                        html += '<h3 class="fail">❌ API DATA IS WRONG</h3>';
+                        html += '<p>The calendar API is not sending the correct time data.</p>';
+                        html += '<p>Expected: 2026-02-12T00:00:00+08:00</p>';
+                        html += `<p>Actual: ${event76.start}</p>`;
+                    } else if (!js1Correct) {
+                        html += '<h3 class="fail">❌ JAVASCRIPT PROCESSING IS WRONG</h3>';
+                        html += '<p>The API data is correct but JavaScript is not processing it correctly.</p>';
+                        html += '<p>This could be a browser timezone issue.</p>';
+                    }
+                    
+                    html += '</div>';
+                }
+                
+                resultsDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <h2>❌ Error</h2>
+                    <p class="fail">Failed to fetch calendar API: ${error.message}</p>
+                    <p>This might be because:</p>
+                    <ul>
+                        <li>You need to be logged in</li>
+                        <li>The server is not running</li>
+                        <li>CORS or authentication issues</li>
+                    </ul>
+                `;
+            }
+        }
+        
+        // Run the test when page loads
+        testCalendarAPI();
+    </script>
+</body>
+</html>

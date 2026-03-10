@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Sidebar Fix Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Mobile Sidebar Overlay -->
+        <div id="mobile-sidebar-overlay" class="fixed inset-0 z-40 lg:hidden hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50" onclick="toggleMobileSidebar()"></div>
+            <div class="fixed inset-y-0 left-0 w-64 bg-slate-900 shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out" id="mobile-sidebar-panel">
+                <!-- Mobile Sidebar Content -->
+                <div class="flex flex-col h-full">
+                    <!-- Close Button Header -->
+                    <div class="flex items-center justify-end p-4 border-b border-slate-800">
+                        <button onclick="toggleMobileSidebar()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Sidebar Content -->
+                    <div class="flex-1 p-4">
+                        <h3 class="text-white text-lg font-semibold mb-4">Mobile Sidebar</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="block text-slate-300 hover:text-white py-2">Dashboard</a></li>
+                            <li><a href="#" class="block text-slate-300 hover:text-white py-2">Calendar</a></li>
+                            <li><a href="#" class="block text-slate-300 hover:text-white py-2">Events</a></li>
+                            <li><a href="#" class="block text-slate-300 hover:text-white py-2">Profile</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-8">
+            <h1 class="text-2xl font-bold mb-6">Mobile Sidebar Fix Test</h1>
+            
+            <!-- Mobile Sidebar Toggle Button -->
+            <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-lg transition-colors duration-200 mb-4">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold mb-4">Test Results</h2>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <span id="functionStatus" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Checking...
+                        </span>
+                        <span>toggleMobileSidebar function availability</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <span id="elementsStatus" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Checking...
+                        </span>
+                        <span>Mobile sidebar elements presence</span>
+                    </div>
+                    
+                    <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                        <h3 class="text-sm font-semibold text-blue-900 mb-2">How to Test:</h3>
+                        <ol class="text-sm text-blue-800 space-y-1">
+                            <li>1. Click the hamburger menu button above</li>
+                            <li>2. Sidebar should slide in from the left</li>
+                            <li>3. Click the overlay or close button to hide</li>
+                            <li>4. No JavaScript errors should appear in console</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle function (same as in the fix)
+        if (typeof toggleMobileSidebar === 'undefined') {
+            function toggleMobileSidebar() {
+                const overlay = document.getElementById('mobile-sidebar-overlay');
+                const panel = document.getElementById('mobile-sidebar-panel');
+                
+                if (!overlay || !panel) {
+                    console.warn('Mobile sidebar elements not found');
+                    return;
+                }
+                
+                if (overlay.classList.contains('hidden')) {
+                    // Show sidebar
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => {
+                        panel.classList.remove('-translate-x-full');
+                    }, 10);
+                } else {
+                    // Hide sidebar
+                    panel.classList.add('-translate-x-full');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 300);
+                }
+            }
+            
+            // Make function globally available
+            window.toggleMobileSidebar = toggleMobileSidebar;
+        }
+
+        // Test the implementation
+        document.addEventListener('DOMContentLoaded', function() {
+            const functionStatus = document.getElementById('functionStatus');
+            const elementsStatus = document.getElementById('elementsStatus');
+            
+            // Check if function is available
+            if (typeof toggleMobileSidebar === 'function') {
+                functionStatus.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+                functionStatus.textContent = '✅ Available';
+            } else {
+                functionStatus.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
+                functionStatus.textContent = '❌ Missing';
+            }
+            
+            // Check if elements exist
+            const overlay = document.getElementById('mobile-sidebar-overlay');
+            const panel = document.getElementById('mobile-sidebar-panel');
+            
+            if (overlay && panel) {
+                elementsStatus.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+                elementsStatus.textContent = '✅ Found';
+            } else {
+                elementsStatus.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
+                elementsStatus.textContent = '❌ Missing';
+            }
+            
+            console.log('Mobile sidebar test initialized');
+            console.log('Function available:', typeof toggleMobileSidebar === 'function');
+            console.log('Elements found:', !!overlay && !!panel);
+        });
+    </script>
+</body>
+</html>

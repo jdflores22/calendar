@@ -1,0 +1,328 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui_blocks.html.twig' as ui %}
+
+{% block title %}UI Components Showcase - TESDA Calendar{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container-responsive py-responsive">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-responsive-2xl font-bold text-gray-900 mb-2">UI Components Showcase</h1>
+            <p class="text-responsive-base text-gray-600">Enhanced Tailwind UI components for TESDA Calendar System</p>
+        </div>
+
+        <!-- Alerts Section -->
+        <section class="mb-12">
+            <h2 class="text-responsive-xl font-semibold text-gray-900 mb-6">Alerts & Notifications</h2>
+            <div class="space-y-4">
+                {{ ui.alert('success', 'Success!', 'Your event has been created successfully.') }}
+                {{ ui.alert('warning', 'Warning', 'This action cannot be undone.', true, [
+                    {url: '#', text: 'Proceed', type: 'warning'},
+                    {url: '#', text: 'Cancel', type: 'secondary'}
+                ]) }}
+                {{ ui.alert('error', 'Error', 'Failed to save the event. Please try again.') }}
+                {{ ui.alert('info', 'Information', 'The system will be under maintenance from 2:00 AM to 4:00 AM.') }}
+            </div>
+        </section>
+
+        <!-- Stats Grid Section -->
+        <section class="mb-12">
+            <h2 class="text-responsive-xl font-semibold text-gray-900 mb-6">Statistics Cards</h2>
+            {{ ui.stats_grid([
+                {
+                    label: 'Total Events',
+                    value: '1,234',
+                    icon: '<svg class="h-8 w-8 text-tesda-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" /></svg>',
+                    change: {type: 'positive', value: '+12%'}
+                },
+                {
+                    label: 'Active Users',
+                    value: '567',
+                    icon: '<svg class="h-8 w-8 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /></svg>',
+                    change: {type: 'positive', value: '+5%'}
+                },
+                {
+                    label: 'This Month',
+                    value: '89',
+                    icon: '<svg class="h-8 w-8 text-warning-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>',
+                    change: {type: 'negative', value: '-3%'}
+                },
+                {
+                    label: 'Completion Rate',
+                    value: '94%',
+                    icon: '<svg class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+                    change: {type: 'positive', value: '+2%'}
+                }
+            ]) }}
+        </section>
+
+        <!-- Buttons Section -->
+        <section class="mb-12">
+            <h2 class="text-responsive-xl font-semibold text-gray-900 mb-6">Buttons</h2>
+            <div class="space-y-4">
+                <div class="flex flex-wrap gap-4">
+                    <button class="btn-primary">Primary Button</button>
+                    <button class="btn-secondary">Secondary Button</button>
+                    <button class="btn-success">Success Button</button>
+                    <button class="btn-warning">Warning Button</button>
+                    <button class="btn-danger">Danger Button</button>
+                    <button class="btn-outline">Outline Button</button>
+                    <button class="btn-ghost">Ghost Button</button>
+                </div>
+                
+                <div class="flex flex-wrap gap-4">
+                    <button class="btn-primary btn-sm">Small</button>
+                    <button class="btn-primary">Default</button>
+                    <button class="btn-primary btn-lg">Large</button>
+                    <button class="btn-primary btn-xl">Extra Large</button>
+                </div>
+                
+                <div class="flex flex-wrap gap-4">
+                    <button class="btn-primary">
+                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        With Icon
+                    </button>
+                    <button class="btn-primary" disabled>Disabled</button>
+                    <button class="btn-primary">
+                        <div class="spinner-white spinner-sm mr-2"></div>
+                        Loading
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Components Section -->
+        <section class="mb-12">
+            <h2 class="text-responsive-xl font-semibold text-gray-900 mb-6">Form Components</h2>
+            <div class="card max-w-2xl">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold text-gray-900">Sample Form</h3>
+                </div>
+                <div class="card-body space-y-6">
+                    {{ ui.form_field({
+                        name: 'title',
+                        label: 'Event Title',
+                        type: 'text',
+                        placeholder: 'Enter event title...'
+                    }, {required: true, help: 'Choose a descriptive title for your event'}) }}
+                    
+                    {{ ui.form_field({
+                        name: 'description',
+                        label: 'Description',
+                        type: 'textarea',
+                        placeholder: 'Describe your event...'
+                    }) }}
+                    
+                    {{ ui.form_field({
+                        name: 'category',
+                        label: 'Category',
+                        type: 'select',
+                        placeholder: 'Select a category',
+                        options: [
+                            {value: 'meeting', label: 'Meeting'},
+                            {value: 'training', label: 'Training'},
+                            {value: 'conference', label: 'Conference'}
+                        ]
+                    }, {required: true}) }}
+                    
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox">
+                            <span class="ml-2 text-sm text-gray-700">All day event</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="visibility" class="form-radio">
+                            <span class="ml-2 text-sm text-gray-700">Public</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="visibility" class="form-radio">
+                            <span class="ml-2 text-sm text-gray-700">Private</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="flex items-center justify-end space-x-3">
+                        <button class="btn-secondary">Cancel</button>
+                        <button class="btn-primary">Save Event</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cards Section -->
+        <section class="mb-12">
+            <h2 class="text-responsive-xl font-semibold text-gray-900 mb-6">Cards</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Basic Card</h3>
+                        <p class="text-gray-600">This is a basic card with simple content.</p>
+                    </div>
+                </div>
+                
+                <div class="card-hover">
+                    <div class="card-body">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Hover Card</h3>
+                        <p class="text-gray-600">This card has hover effects.</p>
+                    </div>
+                </div>
+                
+                <div class="card-elevated">
+                    <div class="card-body">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Elevated Card</h3>
+                        <p class="text-gray-600">This card has enhanced shadows.</p>
+                    </div>
+                </div>
+                
+                <div class="card-glass">
+                    <div class="card-body">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Glass Card</h3>
+                        <p class="text-gray-600">This card has a glass morphism effect.</p>
+                    </div>
+                </div>
+                
+                <div class="card-gradient">
+                    <div class="card-body">
+                        <h3 class="text-lg font-semibold text-white mb-2">Gradient Card</h3>
+                        <p class="text-white/90">This card has a gradient background.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-lg font-semibold text-gray-900">Card with Header</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-gray-600">This card has a header section.</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-primary btn-sm">Action</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badges Section -->
+        <section class="mb-12">
+            <h2 class="text-responsive-xl font-semibold text-gray-900 mb-6">Badges</h2>
+            <div class="space-y-4">
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-primary">Primary</span>
+                    <span class="badge-success">Success</span>
+                    <span class="badge-warning">Warning</span>
+                    <span class="badge-danger">Danger</span>
+                    <span class="badge-gray">Gray</span>
+                </div>
+                
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-outline-primary">Outline Primary</span>
+                    <span class="badge-primary badge-sm">Small</span>
+                    <span class="badge-primary badge-lg">Large</span>
+                </div>
+                
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-dot badge-primary">Online</span>
+                    <span class="badge-dot badge-success">Active</span>
+                    <span class="badge-dot badge-warning">Pending</span>
+                    <span class="badge-dot badge-danger">Offline</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading States Section -->
+        <section class="mb-12">
+            <h2 class="text-responsive-xl font-semibold text-gray-900 mb-6">Loading States</h2>
+            <div class="space-y-6">
+                <div class="flex items-center space-x-4">
+                    <div class="spinner-primary spinner-sm"></div>
+                    <div class="spinner-primary spinner-md"></div>
+                    <div class="spinner-primary spinner-lg"></div>
+                    <div class="spinner-primary spinner-xl"></div>
+                </div>
+                
+                <div class="space-y-2">
+                    <div class="progress progress-md">
+                        <div class="progress-bar" style="width: 75%"></div>
+                    </div>
+                    <div class="progress progress-md">
+                        <div class="progress-bar-success" style="width: 60%"></div>
+                    </div>
+                    <div class="progress progress-md">
+                        <div class="progress-bar-warning" style="width: 40%"></div>
+                    </div>
+                    <div class="progress progress-md">
+                        <div class="progress-bar-danger" style="width: 20%"></div>
+                    </div>
+                </div>
+                
+                {{ ui.loading_skeleton('card') }}
+            </div>
+        </section>
+
+        <!-- Interactive Elements -->
+        <section class="mb-12">
+            <h2 class="text-responsive-xl font-semibold text-gray-900 mb-6">Interactive Elements</h2>
+            <div class="space-y-6">
+                <!-- Toast Examples -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Toast Notifications</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="btn-success btn-sm" onclick="window.toastManager.success('Success message!')">Success Toast</button>
+                            <button class="btn-danger btn-sm" onclick="window.toastManager.error('Error message!')">Error Toast</button>
+                            <button class="btn-warning btn-sm" onclick="window.toastManager.warning('Warning message!')">Warning Toast</button>
+                            <button class="btn-primary btn-sm" onclick="window.toastManager.info('Info message!')">Info Toast</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tooltip Examples -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Tooltips</h3>
+                        <div class="flex flex-wrap gap-4">
+                            <button class="btn-primary" data-tooltip="This is a tooltip on top" data-tooltip-position="top">Top Tooltip</button>
+                            <button class="btn-primary" data-tooltip="This is a tooltip on bottom" data-tooltip-position="bottom">Bottom Tooltip</button>
+                            <button class="btn-primary" data-tooltip="This is a tooltip on left" data-tooltip-position="left">Left Tooltip</button>
+                            <button class="btn-primary" data-tooltip="This is a tooltip on right" data-tooltip-position="right">Right Tooltip</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Sample Modal -->
+{{ ui.modal('sample-modal', 'Sample Modal') }}
+{% block modal_body %}
+    <p class="text-gray-600 mb-4">This is a sample modal with enhanced styling.</p>
+    <div class="space-y-4">
+        {{ ui.form_field({
+            name: 'modal_input',
+            label: 'Sample Input',
+            type: 'text',
+            placeholder: 'Enter something...'
+        }) }}
+    </div>
+{% endblock %}
+{% block modal_footer %}
+    <button class="btn-secondary" onclick="window.modalManager.close()">Cancel</button>
+    <button class="btn-primary">Save Changes</button>
+{% endblock %}
+
+<script>
+// Demo interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handler for modal demo
+    const modalButton = document.createElement('button');
+    modalButton.className = 'btn-primary fixed bottom-4 right-4 z-40';
+    modalButton.innerHTML = 'Open Modal Demo';
+    modalButton.onclick = () => window.modalManager.open('sample-modal');
+    document.body.appendChild(modalButton);
+});
+</script>
+{% endblock %}

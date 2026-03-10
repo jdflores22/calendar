@@ -1,0 +1,181 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-gray-900">My Profile</h1>
+                    <a href="{{ path('app_profile_edit') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Status Alert -->
+        {% if not profile.isComplete %}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">Profile Incomplete</h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>Please complete your profile to access all system features.</p>
+                        </div>
+                        <div class="mt-4">
+                            <a href="{{ path('app_profile_complete') }}" 
+                               class="text-sm font-medium text-yellow-800 underline hover:text-yellow-600">
+                                Complete Profile →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Profile Information -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Profile Information</h2>
+            </div>
+            
+            <div class="px-6 py-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Avatar Section -->
+                    <div class="md:col-span-1">
+                        <div class="flex flex-col items-center">
+                            {% if profile.avatar %}
+                                <img class="h-32 w-32 rounded-full object-cover border-4 border-gray-200" 
+                                     src="{{ asset(profile.avatar) }}" 
+                                     alt="{{ profile.displayName }}">
+                            {% else %}
+                                <div class="h-32 w-32 rounded-full bg-gray-300 flex items-center justify-center border-4 border-gray-200">
+                                    <svg class="h-16 w-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">{{ profile.displayName }}</h3>
+                            <p class="text-sm text-gray-500">{{ user.email }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Profile Details -->
+                    <div class="md:col-span-2">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">First Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ profile.firstName ?? 'Not provided' }}</dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Last Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ profile.lastName ?? 'Not provided' }}</dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Middle Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ profile.middleName ?? 'Not provided' }}</dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Phone Number</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ profile.phone ?? 'Not provided' }}</dd>
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500">Organizational Unit</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {% if user.office %}
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                            </svg>
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                {% if user.office.cluster %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium" 
+                                                          style="background-color: {{ user.office.cluster.color }}20; color: {{ user.office.cluster.color }}; border: 1px solid {{ user.office.cluster.color }}40;">
+                                                        {{ user.office.cluster.name }}
+                                                    </span>
+                                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                {% endif %}
+                                                <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium" 
+                                                      style="background-color: {{ user.office.effectiveColor }}20; color: {{ user.office.effectiveColor }}; border: 1px solid {{ user.office.effectiveColor }}40;">
+                                                    {{ user.office.name }}
+                                                </span>
+                                                {% if user.division %}
+                                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
+                                                        {{ user.division.name }}
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <p class="mt-2 text-xs text-gray-500">
+                                            {% if user.division %}
+                                                You are assigned to {{ user.division.name }} division under {{ user.office.name }}
+                                            {% else %}
+                                                You are assigned to {{ user.office.name }} (Office level)
+                                            {% endif %}
+                                        </p>
+                                    {% else %}
+                                        <span class="text-gray-400">Not assigned</span>
+                                    {% endif %}
+                                </dd>
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500">Address</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ profile.address ?? 'Not provided' }}</dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Profile Status</dt>
+                                <dd class="mt-1">
+                                    {% if profile.isComplete %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Complete
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Incomplete
+                                        </span>
+                                    {% endif %}
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Member Since</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ user.createdAt|date('F j, Y') }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

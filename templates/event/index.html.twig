@@ -1,0 +1,703 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Events Management{% endblock %}
+
+{% block body %}
+<style>
+    .event-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .event-status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+    }
+    
+    .priority-high { border-left-color: #ef4444; }
+    .priority-medium { border-left-color: #f59e0b; }
+    .priority-low { border-left-color: #10b981; }
+    .priority-normal { border-left-color: #6b7280; }
+    
+    .filter-chip {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .filter-chip:hover {
+        transform: scale(1.05);
+    }
+    
+    .filter-chip.active {
+        background-color: #3b82f6;
+        color: white;
+    }
+    
+    .search-highlight {
+        background-color: #fef3c7;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>
+
+<div class="min-h-screen bg-gray-50">
+    <!-- Enhanced Header with Breadcrumbs -->
+    <div class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumbs -->
+            <nav class="flex pt-4 pb-2" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ path('app_dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Events</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            
+            <!-- Header Content -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Events Management</h1>
+                    <p class="mt-1 text-sm text-gray-600">Manage and organize all your events</p>
+                </div>
+                <div class="flex items-center space-x-3 mt-4 sm:mt-0">
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <span id="event-count">{{ events|length }}</span>
+                        <span>events total</span>
+                    </div>
+                    <a href="{{ path('app_calendar_index') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v16a2 2 0 002 2z"></path>
+                        </svg>
+                        Calendar View
+                    </a>
+                    <button onclick="exportEvents()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Export CSV
+                    </button>
+                    <a href="{{ path('app_event_new') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        New Event
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+            <div class="p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <!-- Search Bar -->
+                    <div class="flex-1 max-w-lg">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="text" 
+                                   id="search-input"
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Search events by title, description, or location..."
+                                   onkeyup="filterEvents()">
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Chips -->
+                    <div class="flex flex-wrap items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700 mr-2">Filter by:</span>
+                        <button onclick="setStatusFilter('all')" 
+                                class="filter-chip active px-3 py-1 text-xs font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700" 
+                                data-filter="all">
+                            All Events
+                        </button>
+                        <button onclick="setStatusFilter('upcoming')" 
+                                class="filter-chip px-3 py-1 text-xs font-medium rounded-full border border-gray-300 bg-white text-gray-700" 
+                                data-filter="upcoming">
+                            Upcoming
+                        </button>
+                        <button onclick="setStatusFilter('today')" 
+                                class="filter-chip px-3 py-1 text-xs font-medium rounded-full border border-gray-300 bg-white text-gray-700" 
+                                data-filter="today">
+                            Today
+                        </button>
+                        <button onclick="setStatusFilter('past')" 
+                                class="filter-chip px-3 py-1 text-xs font-medium rounded-full border border-gray-300 bg-white text-gray-700" 
+                                data-filter="past">
+                            Past
+                        </button>
+                    </div>
+                    
+                    <!-- Sort Options -->
+                    <div class="flex items-center space-x-2">
+                        <label for="sort-select" class="text-sm font-medium text-gray-700">Sort by:</label>
+                        <select id="sort-select" 
+                                onchange="sortEvents()"
+                                class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="date-desc">Date (Newest First)</option>
+                            <option value="date-asc">Date (Oldest First)</option>
+                            <option value="title-asc">Title (A-Z)</option>
+                            <option value="title-desc">Title (Z-A)</option>
+                            <option value="priority">Priority</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Grid -->
+        <div id="events-container">
+            {% if events|length > 0 %}
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="events-grid">
+                    {% for event in events %}
+                        <div class="event-card bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md priority-{{ event.priority|lower }} fade-in"
+                             data-event-id="{{ event.id }}"
+                             data-title="{{ event.title|lower }}"
+                             data-description="{{ event.description|lower }}"
+                             data-location="{{ event.location|lower }}"
+                             data-date="{{ event.startTime|ph_date('Y-m-d') }}"
+                             data-priority="{{ event.priority|lower }}"
+                             data-status="{{ event.status|lower }}">
+                            
+                            <!-- Event Header -->
+                            <div class="p-6 pb-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center space-x-3 flex-1">
+                                        <div class="w-4 h-4 rounded-full flex-shrink-0" 
+                                             style="background-color: {{ event.effectiveColor }}"></div>
+                                        <h3 class="text-lg font-semibold text-gray-900 truncate">
+                                            <a href="{{ path('app_event_show', {id: event.id}) }}" 
+                                               class="hover:text-blue-600 transition-colors duration-200">
+                                                {{ event.title }}
+                                            </a>
+                                        </h3>
+                                    </div>
+                                    
+                                    <!-- Priority Badge -->
+                                    <span class="event-status-badge 
+                                        {% if event.priority == 'high' %}bg-red-100 text-red-800
+                                        {% elseif event.priority == 'medium' %}bg-yellow-100 text-yellow-800
+                                        {% elseif event.priority == 'low' %}bg-green-100 text-green-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ event.priority|title }}
+                                    </span>
+                                </div>
+                                
+                                <!-- Event Details -->
+                                <div class="mt-3 space-y-2">
+                                    <!-- Date and Time -->
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v16a2 2 0 002 2z"></path>
+                                        </svg>
+                                        {% if event.allDay %}
+                                            <span class="font-medium">{{ event.startTime|ph_date('M j, Y') }}</span>
+                                            <span class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">All Day</span>
+                                        {% else %}
+                                            <span>{{ event.startTime|ph_date('M j, Y g:i A') }}</span>
+                                            {% if event.startTime|ph_date('Y-m-d') != event.endTime|ph_date('Y-m-d') %}
+                                                <span class="mx-1">-</span>
+                                                <span>{{ event.endTime|ph_date('M j, Y g:i A') }}</span>
+                                            {% else %}
+                                                <span class="mx-1">-</span>
+                                                <span>{{ event.endTime|ph_time('g:i A') }}</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Location -->
+                                    {% if event.location %}
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            <span class="truncate">{{ event.location }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Office -->
+                                    {% if event.office %}
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h10M7 15h10"></path>
+                                            </svg>
+                                            <span class="truncate">{{ event.office.name }}</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Description -->
+                                {% if event.description %}
+                                    <p class="mt-3 text-sm text-gray-500 line-clamp-2">
+                                        {{ event.description|length > 100 ? event.description|slice(0, 100) ~ '...' : event.description }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Event Footer -->
+                            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+                                <div class="flex items-center justify-between">
+                                    <!-- Status and Recurring Info -->
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {% if event.status == 'confirmed' %}bg-green-100 text-green-800
+                                            {% elseif event.status == 'tentative' %}bg-yellow-100 text-yellow-800
+                                            {% elseif event.status == 'cancelled' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ event.status|title }}
+                                        </span>
+                                        
+                                        {% if event.recurring %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                Recurring
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Action Buttons -->
+                                    <div class="flex items-center space-x-2">
+                                        {% if is_granted('edit', event) %}
+                                            <a href="{{ path('app_event_edit', {id: event.id}) }}" 
+                                               class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                </svg>
+                                                Edit
+                                            </a>
+                                        {% endif %}
+                                        {% if is_granted('delete', event) %}
+                                            <button onclick="deleteEvent({{ event.id }}, '{{ event.title|e('js') }}')" 
+                                                    class="inline-flex items-center px-3 py-1 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                                Delete
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- No Results Message (Hidden by default) -->
+                <div id="no-results" class="hidden text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.562M15 6.306a7.962 7.962 0 00-6 0M12 3v3"></path>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No events found</h3>
+                    <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
+                </div>
+                
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v16a2 2 0 002 2z"></path>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No events yet</h3>
+                    <p class="mt-1 text-sm text-gray-500">Get started by creating your first event.</p>
+                    <div class="mt-6">
+                        <a href="{{ path('app_event_new') }}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Create Event
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<script>
+let currentFilter = 'all';
+let currentSort = 'date-desc';
+
+// Export events function
+function exportEvents() {
+    const searchTerm = document.getElementById('search-input').value;
+    const params = new URLSearchParams();
+    
+    if (currentFilter !== 'all') {
+        params.append('status', currentFilter);
+    }
+    
+    if (searchTerm) {
+        params.append('search', searchTerm);
+    }
+    
+    const url = '{{ path('app_event_export') }}' + (params.toString() ? '?' + params.toString() : '');
+    
+    // Show loading notification
+    if (window.showToast) {
+        window.showToast('Preparing export...', 'info', 3000);
+    }
+    
+    // Create temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show success notification
+    setTimeout(() => {
+        if (window.showToast) {
+            window.showToast('Events exported successfully!', 'success', 5000);
+        }
+    }, 1000);
+}
+
+// Enhanced delete function with better UX
+function deleteEvent(eventId, eventTitle) {
+    // Show custom confirmation dialog
+    if (confirm(`Are you sure you want to delete "${eventTitle}"?\n\nThis action cannot be undone.`)) {
+        // Show loading state
+        const eventCard = document.querySelector(`[data-event-id="${eventId}"]`);
+        if (eventCard) {
+            eventCard.style.opacity = '0.5';
+            eventCard.style.pointerEvents = 'none';
+        }
+        
+        // Show toast notification
+        if (window.showToast) {
+            window.showToast('Deleting event...', 'info', 3000);
+        }
+        
+        fetch(`/events/${eventId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Animate out the card
+                if (eventCard) {
+                    eventCard.style.transform = 'translateX(-100%)';
+                    eventCard.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        eventCard.remove();
+                        updateEventCount();
+                        
+                        // Check if no events left
+                        const remainingEvents = document.querySelectorAll('.event-card');
+                        if (remainingEvents.length === 0) {
+                            showEmptyState();
+                        }
+                    }, 300);
+                }
+                
+                // Show success notification
+                if (window.showToast) {
+                    window.showToast(`Event "${eventTitle}" deleted successfully`, 'success', 5000);
+                }
+            } else {
+                // Restore card state
+                if (eventCard) {
+                    eventCard.style.opacity = '1';
+                    eventCard.style.pointerEvents = 'auto';
+                }
+                
+                // Show error notification
+                if (window.showToast) {
+                    window.showToast('Error: ' + data.message, 'error', 5000);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Restore card state
+            if (eventCard) {
+                eventCard.style.opacity = '1';
+                eventCard.style.pointerEvents = 'auto';
+            }
+            
+            // Show error notification
+            if (window.showToast) {
+                window.showToast('Error deleting event. Please try again.', 'error', 5000);
+            } else {
+                alert('Error deleting event. Please try again.');
+            }
+        });
+    }
+}
+
+// Filter events by status
+function setStatusFilter(filter) {
+    currentFilter = filter;
+    
+    // Update active filter chip
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.classList.remove('active');
+        if (chip.dataset.filter === filter) {
+            chip.classList.add('active');
+        }
+    });
+    
+    filterEvents();
+}
+
+// Search and filter events
+function filterEvents() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const eventCards = document.querySelectorAll('.event-card');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let visibleCount = 0;
+    
+    eventCards.forEach(card => {
+        const title = card.dataset.title || '';
+        const description = card.dataset.description || '';
+        const location = card.dataset.location || '';
+        const eventDate = new Date(card.dataset.date);
+        eventDate.setHours(0, 0, 0, 0);
+        
+        // Check search match
+        const searchMatch = !searchTerm || 
+            title.includes(searchTerm) || 
+            description.includes(searchTerm) || 
+            location.includes(searchTerm);
+        
+        // Check filter match
+        let filterMatch = true;
+        if (currentFilter === 'today') {
+            filterMatch = eventDate.getTime() === today.getTime();
+        } else if (currentFilter === 'upcoming') {
+            filterMatch = eventDate >= today;
+        } else if (currentFilter === 'past') {
+            filterMatch = eventDate < today;
+        }
+        
+        if (searchMatch && filterMatch) {
+            card.style.display = 'block';
+            card.classList.add('fade-in');
+            visibleCount++;
+            
+            // Highlight search terms
+            if (searchTerm) {
+                highlightSearchTerm(card, searchTerm);
+            } else {
+                removeHighlights(card);
+            }
+        } else {
+            card.style.display = 'none';
+            card.classList.remove('fade-in');
+        }
+    });
+    
+    // Update event count
+    document.getElementById('event-count').textContent = visibleCount;
+    
+    // Show/hide no results message
+    const noResults = document.getElementById('no-results');
+    if (visibleCount === 0 && eventCards.length > 0) {
+        noResults.classList.remove('hidden');
+    } else {
+        noResults.classList.add('hidden');
+    }
+}
+
+// Sort events
+function sortEvents() {
+    const sortValue = document.getElementById('sort-select').value;
+    currentSort = sortValue;
+    
+    const container = document.getElementById('events-grid');
+    const cards = Array.from(container.querySelectorAll('.event-card'));
+    
+    cards.sort((a, b) => {
+        switch (sortValue) {
+            case 'date-asc':
+                return new Date(a.dataset.date) - new Date(b.dataset.date);
+            case 'date-desc':
+                return new Date(b.dataset.date) - new Date(a.dataset.date);
+            case 'title-asc':
+                return a.dataset.title.localeCompare(b.dataset.title);
+            case 'title-desc':
+                return b.dataset.title.localeCompare(a.dataset.title);
+            case 'priority':
+                const priorityOrder = { 'high': 4, 'medium': 3, 'normal': 2, 'low': 1 };
+                return (priorityOrder[b.dataset.priority] || 0) - (priorityOrder[a.dataset.priority] || 0);
+            default:
+                return 0;
+        }
+    });
+    
+    // Re-append sorted cards
+    cards.forEach(card => container.appendChild(card));
+}
+
+// Highlight search terms
+function highlightSearchTerm(card, term) {
+    const titleElement = card.querySelector('h3 a');
+    const descriptionElement = card.querySelector('p');
+    
+    if (titleElement) {
+        const originalText = titleElement.textContent;
+        const highlightedText = originalText.replace(
+            new RegExp(`(${term})`, 'gi'),
+            '<span class="search-highlight">$1</span>'
+        );
+        titleElement.innerHTML = highlightedText;
+    }
+}
+
+// Remove search highlights
+function removeHighlights(card) {
+    const highlightedElements = card.querySelectorAll('.search-highlight');
+    highlightedElements.forEach(element => {
+        element.outerHTML = element.textContent;
+    });
+}
+
+// Update event count
+function updateEventCount() {
+    const visibleCards = document.querySelectorAll('.event-card[style*="display: block"], .event-card:not([style*="display: none"])');
+    document.getElementById('event-count').textContent = visibleCards.length;
+}
+
+// Show empty state
+function showEmptyState() {
+    const container = document.getElementById('events-container');
+    container.innerHTML = `
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v16a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No events</h3>
+            <p class="mt-1 text-sm text-gray-500">All events have been deleted.</p>
+            <div class="mt-6">
+                <a href="{{ path('app_event_new') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create Event
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial event count
+    updateEventCount();
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('search-input').focus();
+        }
+        
+        // Escape to clear search
+        if (e.key === 'Escape') {
+            const searchInput = document.getElementById('search-input');
+            if (searchInput.value) {
+                searchInput.value = '';
+                filterEvents();
+            }
+        }
+    });
+    
+    // Auto-save search and filter preferences
+    const searchInput = document.getElementById('search-input');
+    const sortSelect = document.getElementById('sort-select');
+    
+    // Load saved preferences
+    const savedSearch = localStorage.getItem('events-search');
+    const savedSort = localStorage.getItem('events-sort');
+    const savedFilter = localStorage.getItem('events-filter');
+    
+    if (savedSearch) {
+        searchInput.value = savedSearch;
+    }
+    if (savedSort) {
+        sortSelect.value = savedSort;
+        currentSort = savedSort;
+    }
+    if (savedFilter) {
+        setStatusFilter(savedFilter);
+    }
+    
+    // Apply initial filters and sorting
+    filterEvents();
+    sortEvents();
+    
+    // Save preferences on change
+    searchInput.addEventListener('input', function() {
+        localStorage.setItem('events-search', this.value);
+    });
+    
+    sortSelect.addEventListener('change', function() {
+        localStorage.setItem('events-sort', this.value);
+    });
+});
+</script>
+{% endblock %}

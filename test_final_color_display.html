@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Clean Office Color Display</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Final Clean Office Color Display</h1>
+        
+        <!-- Modal Simulation -->
+        <div class="bg-white rounded-lg shadow-xl p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Create New Event</h3>
+                <button class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Title *</label>
+                    <input type="text" placeholder="Enter event title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Start Date & Time *</label>
+                    <input type="datetime-local" value="2026-02-13T11:00" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">End Date & Time *</label>
+                    <input type="datetime-local" value="2026-02-13T12:00" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="demoOffice" class="block text-sm font-medium text-gray-700">Office</label>
+                    <select id="demoOffice" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select an office</option>
+                        <option value="1" data-color="#FF6B6B">Office of the Secretary</option>
+                        <option value="2" data-color="#4ECDC4">IT Department</option>
+                        <option value="3" data-color="#45B7D1">Human Resources</option>
+                        <option value="4" data-color="#96CEB4">Finance Department</option>
+                        <option value="5" data-color="#FFEAA7">Marketing Division</option>
+                        <option value="6" data-color="#DDA0DD">Operations Center</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Office Color</label>
+                    <div class="mt-1 flex items-center space-x-3 p-3 bg-gray-50 rounded-md border border-gray-200">
+                        <div id="demoColorDisplay" class="w-8 h-8 rounded-full border-2 border-white shadow-sm" style="background-color: #3B82F6;"></div>
+                        <div class="flex flex-col">
+                            <span id="demoColorLabel" class="text-sm font-medium text-gray-700">Default Blue</span>
+                            <span id="demoColorCode" class="text-xs text-gray-500">#3B82F6</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="demoColorHidden" value="#3B82F6">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Location</label>
+                    <input type="text" placeholder="Enter location" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Priority</label>
+                    <select class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option>Low</option>
+                        <option selected>Normal</option>
+                        <option>High</option>
+                        <option>Urgent</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <select class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option selected>Confirmed</option>
+                        <option>Tentative</option>
+                        <option>Cancelled</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label class="ml-2 block text-sm text-gray-900">All Day Event</label>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label class="ml-2 block text-sm text-gray-900">Recurring Event</label>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea rows="4" placeholder="Enter event description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancel
+                </button>
+                <button class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                    Create Event
+                </button>
+            </div>
+        </div>
+
+        <!-- Features Summary -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                <h3 class="font-semibold text-green-800 mb-4">✅ Clean Color Display Features</h3>
+                <ul class="list-disc list-inside text-sm text-green-700 space-y-2">
+                    <li><strong>Read-only display</strong> - No editable color picker</li>
+                    <li><strong>Clean design</strong> - Rounded color swatch in gray background</li>
+                    <li><strong>Office name display</strong> - Shows selected office name</li>
+                    <li><strong>Hex code display</strong> - Shows exact color value</li>
+                    <li><strong>Clean dropdown</strong> - No color indicators cluttering the interface</li>
+                    <li><strong>Hidden form input</strong> - Stores color for backend</li>
+                    <li><strong>Automatic updates</strong> - Changes with office selection</li>
+                </ul>
+            </div>
+
+            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                <h3 class="font-semibold text-blue-800 mb-4">🎨 Design Benefits</h3>
+                <ul class="list-disc list-inside text-sm text-blue-700 space-y-2">
+                    <li><strong>Prevents confusion</strong> - Users can't accidentally change colors</li>
+                    <li><strong>Brand consistency</strong> - Maintains office color standards</li>
+                    <li><strong>Professional look</strong> - Clean, organized appearance</li>
+                    <li><strong>Clear feedback</strong> - Visual confirmation of office selection</li>
+                    <li><strong>Intuitive flow</strong> - Color automatically follows office choice</li>
+                    <li><strong>Space efficient</strong> - Compact display in clean area</li>
+                    <li><strong>Accessibility</strong> - Clear labels and visual indicators</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('demoOffice').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const colorHidden = document.getElementById('demoColorHidden');
+            const colorDisplay = document.getElementById('demoColorDisplay');
+            const colorLabel = document.getElementById('demoColorLabel');
+            const colorCode = document.getElementById('demoColorCode');
+            
+            if (selectedOption.value && selectedOption.getAttribute('data-color')) {
+                const officeColor = selectedOption.getAttribute('data-color');
+                const officeName = selectedOption.textContent;
+                
+                // Update hidden input value
+                colorHidden.value = officeColor;
+                
+                // Update color display
+                colorDisplay.style.backgroundColor = officeColor;
+                colorLabel.textContent = officeName;
+                colorCode.textContent = officeColor.toUpperCase();
+            } else {
+                // Reset to default color if no office selected
+                const defaultColor = '#3B82F6';
+                colorHidden.value = defaultColor;
+                colorDisplay.style.backgroundColor = defaultColor;
+                colorLabel.textContent = 'Default Blue';
+                colorCode.textContent = defaultColor;
+            }
+        });
+    </script>
+</body>
+</html>

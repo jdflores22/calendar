@@ -1,0 +1,469 @@
+{% extends 'base.html.twig' %}
+{% import 'components/ui_blocks.html.twig' as ui %}
+
+{% block title %}Dashboard - TESDA Calendar{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Mobile menu overlay -->
+    <div id="mobile-menu-overlay" class="modal-overlay hidden" onclick="window.TesdaCalendar.toggleMobileMenu()">
+        <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out" id="mobile-menu-panel">
+            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">TESDA Calendar</h2>
+                <button onclick="window.TesdaCalendar.toggleMobileMenu()" class="btn-icon btn-ghost">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="mt-4 px-2 space-y-1">
+                <a href="{{ path('app_dashboard') }}" class="bg-tesda-100 text-tesda-700 group flex items-center px-2 py-2 text-base font-medium rounded-md">
+                    <svg class="text-tesda-500 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="{{ path('app_calendar_index') }}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors duration-200">
+                    <svg class="text-gray-400 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" />
+                    </svg>
+                    Calendar
+                </a>
+                <a href="{{ path('app_event_index') }}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors duration-200">
+                    <svg class="text-gray-400 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Events
+                </a>
+                <a href="{{ path('app_profile_show') }}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors duration-200">
+                    <svg class="text-gray-400 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Profile
+                </a>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('directory_index') }}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors duration-200">
+                        <svg class="text-gray-400 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h10M7 15h10"></path>
+                        </svg>
+                        Directory
+                    </a>
+                {% endif %}
+            </nav>
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+                <a href="{{ path('app_logout') }}" class="btn-danger w-full">
+                    <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Top Navigation Bar -->
+    <nav class="bg-white shadow-soft border-b border-gray-200 relative z-30">
+        <div class="container-responsive">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <!-- Mobile menu button -->
+                    <button onclick="window.TesdaCalendar.toggleMobileMenu()" class="md:hidden btn-icon btn-ghost focus-ring">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    
+                    <div class="flex-shrink-0 ml-2 md:ml-0">
+                        <h1 class="text-gradient text-lg sm:text-xl font-bold">TESDA Calendar</h1>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="{{ path('app_dashboard') }}" class="border-tesda-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="{{ path('app_calendar_index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200">
+                            Calendar
+                        </a>
+                        <a href="{{ path('app_event_index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200">
+                            Events
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Theme Toggle -->
+                    <button data-theme-toggle class="btn-icon btn-ghost" data-tooltip="Toggle theme" data-tooltip-position="bottom">
+                        <div class="theme-icon">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                    </button>
+                    
+                    <div class="hidden sm:block flex-shrink-0">
+                        <span class="text-responsive-sm text-gray-500 truncate max-w-32 sm:max-w-none">
+                            Welcome, {{ app.user.profile ? app.user.profile.firstName ~ ' ' ~ app.user.profile.lastName : app.user.email }}
+                        </span>
+                    </div>
+                    
+                    <!-- User Dropdown -->
+                    <div class="dropdown">
+                        <button type="button" class="btn-icon btn-ghost focus-ring" onclick="window.TesdaCalendar.toggleDropdown('user-dropdown')">
+                            {% if app.user.profile and app.user.profile.avatar %}
+                                <img class="h-8 w-8 rounded-full object-cover" src="{{ asset('uploads/avatars/' ~ app.user.profile.avatar) }}" alt="Avatar">
+                            {% else %}
+                                <div class="h-8 w-8 rounded-full bg-gradient-tesda flex items-center justify-center">
+                                    <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        </button>
+                        <div id="user-dropdown" class="dropdown-menu hidden">
+                            <a href="{{ path('app_profile_show') }}" class="dropdown-item">
+                                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Profile
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ path('app_logout') }}" class="dropdown-item text-danger-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Enhanced Desktop Sidebar Navigation -->
+        <div class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:pt-16">
+            <div class="flex-1 flex flex-col min-h-0 bg-white border-r border-gray-200 shadow-soft">
+                <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+                    <nav class="mt-5 flex-1 px-2 space-y-1">
+                        <a href="{{ path('app_dashboard') }}" class="bg-tesda-100 text-tesda-700 group flex items-center px-2 py-2 text-sm font-medium rounded-md hover-lift">
+                            <svg class="text-tesda-500 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                            </svg>
+                            Dashboard
+                        </a>
+                        <a href="{{ path('app_calendar_index') }}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 hover-lift">
+                            <svg class="text-gray-400 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" />
+                            </svg>
+                            Calendar
+                        </a>
+                        <a href="{{ path('app_event_index') }}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 hover-lift">
+                            <svg class="text-gray-400 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Events
+                        </a>
+                        <a href="{{ path('app_profile_show') }}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 hover-lift">
+                            <svg class="text-gray-400 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Profile
+                        </a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('directory_index') }}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 hover-lift">
+                                <svg class="text-gray-400 mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h10M7 15h10"></path>
+                                </svg>
+                                Directory
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Main Content -->
+        <div class="md:pl-64 flex flex-col flex-1">
+            <main class="flex-1">
+                <div class="py-responsive">
+                    <div class="container-responsive">
+                        <!-- Enhanced Page Header -->
+                        <div class="mb-6 sm:mb-8">
+                            <h1 class="text-responsive-2xl font-bold text-gray-900">Dashboard</h1>
+                            <p class="mt-1 text-responsive-sm text-gray-600">Welcome back! Here's what's happening today.</p>
+                        </div>
+
+                        <!-- Enhanced Notifications using UI components -->
+                        {% if notifications %}
+                            <div class="mb-6 space-y-4">
+                                {% for notification in notifications %}
+                                    {{ ui.alert(notification.type, notification.title, notification.message, true, notification.action ? [notification.action] : null) }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Enhanced Statistics Cards using UI components -->
+                        {{ ui.stats_grid([
+                            {
+                                label: 'Total Events',
+                                value: statistics.total,
+                                icon: '<svg class="h-8 w-8 text-tesda-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>'
+                            },
+                            {
+                                label: 'Today\'s Events',
+                                value: statistics.today,
+                                icon: '<svg class="h-8 w-8 text-tesda-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" /></svg>',
+                                change: {type: 'positive', value: '+2 from yesterday'}
+                            },
+                            {
+                                label: 'This Week',
+                                value: statistics.thisWeek,
+                                icon: '<svg class="h-8 w-8 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" /></svg>'
+                            },
+                            {
+                                label: 'Recurring Events',
+                                value: statistics.recurring,
+                                icon: '<svg class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>'
+                            }
+                        ]) }}
+
+                        <!-- Enhanced Main Dashboard Grid -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                            <!-- Today's Schedule -->
+                            <div class="lg:col-span-2">
+                                <div class="card-hover">
+                                    <div class="card-header">
+                                        <h3 class="text-lg font-semibold text-gray-900">Today's Schedule</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if todaysEvents %}
+                                            <div class="space-y-3 max-h-96 overflow-y-auto">
+                                                {% for event in todaysEvents %}
+                                                    <div class="event-card hover-lift cursor-pointer" onclick="window.location.href='{{ path('app_event_show', {id: event.id}) }}'">
+                                                        <div class="card-body">
+                                                            <div class="flex items-center justify-between mb-2">
+                                                                <div class="event-time">
+                                                                    {{ event.startTime|ph_time('g:i A') }} - {{ event.endTime|ph_time('g:i A') }}
+                                                                </div>
+                                                                {% if event.isHappening %}
+                                                                    <span class="badge-success badge-dot animate-pulse">Live</span>
+                                                                {% endif %}
+                                                            </div>
+                                                            <h4 class="event-title">{{ event.title }}</h4>
+                                                            {% if event.location %}
+                                                                <div class="event-meta">
+                                                                    <div class="flex items-center">
+                                                                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                        </svg>
+                                                                        {{ event.location }}
+                                                                    </div>
+                                                                    {% if event.office %}
+                                                                        <div class="flex items-center">
+                                                                            <div class="w-3 h-3 rounded-full mr-2" style="background-color: {{ event.office.color }}"></div>
+                                                                            {{ event.office.name }}
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <div class="text-center py-12">
+                                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" />
+                                                </svg>
+                                                <h3 class="mt-2 text-sm font-medium text-gray-900">No events today</h3>
+                                                <p class="mt-1 text-sm text-gray-500">You have a free day ahead!</p>
+                                                <div class="mt-4">
+                                                    <a href="{{ path('app_event_new') }}" class="btn-primary">
+                                                        <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                        </svg>
+                                                        Create Event
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Enhanced Sidebar -->
+                            <div class="space-y-6">
+                                <!-- Office Color Legend -->
+                                <div class="card-hover">
+                                    <div class="card-header">
+                                        <h3 class="text-lg font-semibold text-gray-900">Office Colors</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if offices %}
+                                            <div class="space-y-3 max-h-48 overflow-y-auto">
+                                                {% for office in offices %}
+                                                    <div class="flex items-center">
+                                                        <div class="w-4 h-4 rounded-full flex-shrink-0" style="background-color: {{ office.color }}"></div>
+                                                        <span class="ml-3 text-sm text-gray-700 truncate">{{ office.name }}</span>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <p class="text-sm text-gray-500">No offices configured</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Upcoming Events -->
+                                <div class="card-hover">
+                                    <div class="card-header">
+                                        <h3 class="text-lg font-semibold text-gray-900">Upcoming Events</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if upcomingEvents %}
+                                            <div class="space-y-3 max-h-64 overflow-y-auto">
+                                                {% for event in upcomingEvents|slice(0, 5) %}
+                                                    <div class="flex items-start hover:bg-gray-50 p-2 rounded transition-colors duration-200 cursor-pointer hover-lift" onclick="window.location.href='{{ path('app_event_show', {id: event.id}) }}'">
+                                                        <div class="flex-shrink-0">
+                                                            <div class="w-2 h-2 rounded-full mt-2" style="background-color: {{ event.effectiveColor }}"></div>
+                                                        </div>
+                                                        <div class="ml-3 flex-1 min-w-0">
+                                                            <p class="text-sm font-medium text-gray-900 truncate">{{ event.title }}</p>
+                                                            <p class="text-xs text-gray-500">
+                                                                {{ event.startTime|ph_date('M j, g:i A') }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                            {% if upcomingEvents|length > 5 %}
+                                                <div class="mt-4">
+                                                    <a href="{{ path('app_event_index') }}" class="btn-link">
+                                                        View all {{ upcomingEvents|length }} upcoming events →
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <p class="text-sm text-gray-500">No upcoming events</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Quick Actions -->
+                                <div class="card-hover">
+                                    <div class="card-header">
+                                        <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="space-y-3">
+                                            <a href="{{ path('app_event_new') }}" class="btn-primary w-full">
+                                                <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Create Event
+                                            </a>
+                                            <a href="{{ path('app_calendar_index') }}" class="btn-secondary w-full">
+                                                <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" />
+                                                </svg>
+                                                View Calendar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Floating Action Button for Mobile -->
+<div class="md:hidden btn-floating">
+    <a href="{{ path('app_event_new') }}" class="btn-primary btn-icon" data-tooltip="Create Event" data-tooltip-position="left">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+    </a>
+</div>
+
+<script>
+// Enhanced mobile menu functionality
+window.TesdaCalendar = window.TesdaCalendar || {};
+
+window.TesdaCalendar.toggleMobileMenu = function() {
+    const overlay = document.getElementById('mobile-menu-overlay');
+    const panel = document.getElementById('mobile-menu-panel');
+    
+    if (overlay.classList.contains('hidden')) {
+        // Show menu
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+            panel.classList.remove('-translate-x-full');
+        }, 10);
+    } else {
+        // Hide menu
+        panel.classList.add('-translate-x-full');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 300);
+    }
+};
+
+window.TesdaCalendar.toggleDropdown = function(dropdownId) {
+    if (window.dropdownManager) {
+        window.dropdownManager.toggle(dropdownId);
+    }
+};
+
+// Enhanced interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const overlay = document.getElementById('mobile-menu-overlay');
+        const panel = document.getElementById('mobile-menu-panel');
+        const menuButton = event.target.closest('[onclick*="toggleMobileMenu"]');
+        
+        if (!menuButton && !panel.contains(event.target) && !overlay.classList.contains('hidden')) {
+            window.TesdaCalendar.toggleMobileMenu();
+        }
+    });
+
+    // Add touch gestures for mobile menu
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+
+    document.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+    });
+
+    document.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        currentX = e.touches[0].clientX;
+        
+        // Swipe right from left edge to open menu
+        if (startX < 50 && currentX - startX > 100) {
+            const overlay = document.getElementById('mobile-menu-overlay');
+            if (overlay.classList.contains('hidden')) {
+                window.TesdaCalendar.toggleMobileMenu();
+            }
+            isDragging = false;
+        }
+    });
+
+    document.addEventListener('touchend', function() {
+        isDragging = false;
+    });
+
+    // Show success message if redirected from successful action
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success')) {
+        window.TesdaCalendar.showNotification('Action completed successfully!', 'success');
+    }
+});
+</script>
+{% endblock %}

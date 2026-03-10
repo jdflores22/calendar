@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Modal Fix Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Calendar Modal Fix Test</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Issues Fixed:</h2>
+            <ul class="space-y-2 text-sm">
+                <li class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Fixed "Unknown endblock tag" error by removing duplicate showConflictDetails function</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Fixed "Unexpected token '}'" JavaScript syntax error</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Fixed "Office select element not found" error with improved element detection</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Fixed modal persistence issue - modal now works consistently after close/reopen</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Improved modal management with proper cleanup and DOM preservation</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Enhanced error handling and debugging with console logging</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Key Improvements:</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div class="space-y-2">
+                    <h3 class="font-medium text-gray-900">Modal Management:</h3>
+                    <ul class="space-y-1 text-gray-600">
+                        <li>• Main event modal stays in DOM</li>
+                        <li>• Dynamic modals are properly cleaned up</li>
+                        <li>• Improved closeAllModals() function</li>
+                        <li>• Better event listener management</li>
+                    </ul>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-medium text-gray-900">Office Select:</h3>
+                    <ul class="space-y-1 text-gray-600">
+                        <li>• Multiple fallback detection methods</li>
+                        <li>• Retry logic with proper timing</li>
+                        <li>• Better error handling and logging</li>
+                        <li>• Consistent element availability</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 text-center">
+            <a href="http://127.0.0.4:8000/calendar" 
+               class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z" />
+                </svg>
+                Test Calendar Page
+            </a>
+        </div>
+    </div>
+</body>
+</html>

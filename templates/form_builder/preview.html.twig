@@ -1,0 +1,237 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Preview: {{ form.name }} - Form Builder - TESDA Calendar{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Form Preview</h1>
+                    <p class="mt-1 text-sm text-gray-500">{{ form.name }}</p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{{ path('form_builder_edit', {id: form.id}) }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit Form
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-8">
+                <!-- Form Header -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900">{{ form.name }}</h2>
+                    {% if form.description %}
+                        <p class="mt-2 text-gray-600">{{ form.description }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Form Fields -->
+                {% if fields|length > 0 %}
+                    <form class="space-y-6">
+                        {% for field in fields %}
+                            <div class="form-field">
+                                <label for="preview_{{ field.name }}" 
+                                       class="block text-sm font-medium text-gray-700 mb-1">
+                                    {{ field.label }}
+                                    {% if field.isRequired %}
+                                        <span class="text-red-500">*</span>
+                                    {% endif %}
+                                </label>
+                                
+                                {% if field.description %}
+                                    <p class="text-sm text-gray-500 mb-2">{{ field.description }}</p>
+                                {% endif %}
+
+                                {% if field.isTextarea %}
+                                    <textarea id="preview_{{ field.name }}" 
+                                              name="{{ field.name }}"
+                                              {% if field.isRequired %}required{% endif %}
+                                              {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+                                              rows="4"
+                                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">{% if field.defaultValue %}{{ field.defaultValue }}{% endif %}</textarea>
+                                
+                                {% elseif field.isSelect %}
+                                    <select id="preview_{{ field.name }}" 
+                                            name="{{ field.name }}"
+                                            {% if field.isRequired %}required{% endif %}
+                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                        <option value="">Choose an option</option>
+                                        {% for value, label in field.fieldOptions %}
+                                            <option value="{{ value }}" {% if field.defaultValue == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                
+                                {% elseif field.isCheckbox %}
+                                    {% if field.fieldOptions|length > 0 %}
+                                        <div class="mt-2 space-y-2">
+                                            {% for value, label in field.fieldOptions %}
+                                                <div class="flex items-center">
+                                                    <input id="preview_{{ field.name }}_{{ value }}" 
+                                                           name="{{ field.name }}[]" 
+                                                           type="checkbox" 
+                                                           value="{{ value }}"
+                                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                                    <label for="preview_{{ field.name }}_{{ value }}" 
+                                                           class="ml-2 block text-sm text-gray-900">
+                                                        {{ label }}
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="flex items-center mt-2">
+                                            <input id="preview_{{ field.name }}" 
+                                                   name="{{ field.name }}" 
+                                                   type="checkbox" 
+                                                   value="1"
+                                                   {% if field.defaultValue %}checked{% endif %}
+                                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="preview_{{ field.name }}" 
+                                                   class="ml-2 block text-sm text-gray-900">
+                                                {{ field.label }}
+                                            </label>
+                                        </div>
+                                    {% endif %}
+                                
+                                {% elseif field.isRadio %}
+                                    <div class="mt-2 space-y-2">
+                                        {% for value, label in field.fieldOptions %}
+                                            <div class="flex items-center">
+                                                <input id="preview_{{ field.name }}_{{ value }}" 
+                                                       name="{{ field.name }}" 
+                                                       type="radio" 
+                                                       value="{{ value }}"
+                                                       {% if field.defaultValue == value %}checked{% endif %}
+                                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                                <label for="preview_{{ field.name }}_{{ value }}" 
+                                                       class="ml-2 block text-sm text-gray-900">
+                                                    {{ label }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                
+                                {% elseif field.isFile %}
+                                    <input type="file" 
+                                           id="preview_{{ field.name }}" 
+                                           name="{{ field.name }}"
+                                           {% if field.isRequired %}required{% endif %}
+                                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                
+                                {% elseif field.isHidden %}
+                                    <input type="hidden" 
+                                           id="preview_{{ field.name }}" 
+                                           name="{{ field.name }}"
+                                           value="{{ field.defaultValue }}">
+                                
+                                {% else %}
+                                    <input type="{{ field.htmlInputType }}" 
+                                           id="preview_{{ field.name }}" 
+                                           name="{{ field.name }}"
+                                           {% if field.isRequired %}required{% endif %}
+                                           {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+                                           {% if field.defaultValue %}value="{{ field.defaultValue }}"{% endif %}
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <!-- Form Actions -->
+                        <div class="pt-6 border-t border-gray-200">
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" 
+                                        class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No fields in this form</h3>
+                        <p class="mt-1 text-sm text-gray-500">Add some fields to see the form preview.</p>
+                        <div class="mt-6">
+                            <a href="{{ path('form_builder_edit', {id: form.id}) }}" 
+                               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                Add Fields
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Form Information -->
+        <div class="mt-6 bg-white shadow rounded-lg">
+            <div class="px-6 py-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Form Information</h3>
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Form Name</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ form.name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Slug</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ form.slug }}</dd>
+                    </div>
+                    {% if form.assignedTo %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Assigned To</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ form.assignedTo }}</dd>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Total Fields</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ fields|length }}</dd>
+                    </div>
+                    {% if form.tags|length > 0 %}
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">Tags</dt>
+                            <dd class="mt-1">
+                                <div class="flex flex-wrap gap-1">
+                                    {% for tag in form.tags %}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                            {{ tag }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </dd>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Created</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ form.createdAt|date('M j, Y g:i A') }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ form.updatedAt|date('M j, Y g:i A') }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

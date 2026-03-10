@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Date Test</title>
+</head>
+<body>
+    <h1>Date Test for February 1, 2026</h1>
+    <div id="results"></div>
+    
+    <script>
+        const feb1_2026 = new Date(2026, 1, 1); // February 1, 2026
+        const today = new Date();
+        
+        const results = document.getElementById('results');
+        results.innerHTML = `
+            <p><strong>Today:</strong> ${today.toString()}</p>
+            <p><strong>Today day of week:</strong> ${today.getDay()} (${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][today.getDay()]})</p>
+            <p><strong>February 1, 2026:</strong> ${feb1_2026.toString()}</p>
+            <p><strong>Feb 1, 2026 day of week:</strong> ${feb1_2026.getDay()} (${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][feb1_2026.getDay()]})</p>
+            <p><strong>First day of February 2026:</strong> ${new Date(2026, 1, 1).getDay()}</p>
+            <p><strong>Adjusted for Monday-first calendar:</strong> ${feb1_2026.getDay() === 0 ? 6 : feb1_2026.getDay() - 1}</p>
+        `;
+    </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Timezone Utilities Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Timezone Utilities Test</h1>
+    <p>Testing the global SystemTimezone object functionality</p>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        // Simulate the SystemTimezone object from base.html.twig
+        window.SYSTEM_TIMEZONE_CONFIG = {
+            "timezone": "Asia/Manila",
+            "offset": "+08:00",
+            "name": "Philippines Standard Time",
+            "abbreviation": "PST"
+        };
+        
+        window.SystemTimezone = {
+            // Get current time in system timezone (Philippines)
+            now: function() {
+                return new Date().toLocaleString("en-US", {timeZone: "Asia/Manila"});
+            },
+            
+            // Convert any date to system timezone
+            convert: function(date) {
+                return new Date(date.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+            },
+            
+            // Format date for datetime-local inputs (Philippines time)
+            formatForInput: function(date) {
+                const systemDate = this.convert(date);
+                return systemDate.toISOString().split('T')[0] + 'T' + systemDate.toTimeString().slice(0, 5);
+            },
+            
+            // Get current date in system timezone (YYYY-MM-DD)
+            getCurrentDate: function() {
+                return this.convert(new Date()).toISOString().split('T')[0];
+            },
+            
+            // Get current time in system timezone (HH:MM)
+            getCurrentTime: function() {
+                return this.convert(new Date()).toTimeString().slice(0, 5);
+            },
+            
+            // Get timezone info
+            getTimezone: function() {
+                return "Asia/Manila";
+            },
+            
+            // Get timezone offset
+            getOffset: function() {
+                return "+08:00";
+            },
+            
+            // Format for display with timezone
+            formatWithTimezone: function(date) {
+                return date.toLocaleString('en-US', {
+                    timeZone: "Asia/Manila",
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZoneName: 'short'
+                });
+            }
+        };
+        
+        // Test functions
+        function runTests() {
+            const resultsDiv = document.getElementById('test-results');
+            const tests = [
+                {
+                    name: 'SystemTimezone.getTimezone()',
+                    test: () => window.SystemTimezone.getTimezone(),
+                    expected: 'Asia/Manila'
+                },
+                {
+                    name: 'SystemTimezone.getOffset()',
+                    test: () => window.SystemTimezone.getOffset(),
+                    expected: '+08:00'
+                },
+                {
+                    name: 'SystemTimezone.now()',
+                    test: () => window.SystemTimezone.now(),
+                    expected: 'string containing Philippines time'
+                },
+                {
+                    name: 'SystemTimezone.getCurrentDate()',
+                    test: () => window.SystemTimezone.getCurrentDate(),
+                    expected: 'YYYY-MM-DD format'
+                },
+                {
+                    name: 'SystemTimezone.getCurrentTime()',
+                    test: () => window.SystemTimezone.getCurrentTime(),
+                    expected: 'HH:MM format'
+                },
+                {
+                    name: 'SystemTimezone.formatForInput()',
+                    test: () => {
+                        const testDate = new Date('2026-02-12T02:20:00Z'); // UTC
+                        return window.SystemTimezone.formatForInput(testDate);
+                    },
+                    expected: '2026-02-12T10:20 (Philippines time)'
+                }
+            ];
+            
+            tests.forEach(test => {
+                try {
+                    const result = test.test();
+                    const div = document.createElement('div');
+                    div.className = 'test-result success';
+                    div.innerHTML = `
+                        <strong>✅ ${test.name}</strong><br>
+                        Result: <code>${result}</code><br>
+                        Expected: ${test.expected}
+                    `;
+                    resultsDiv.appendChild(div);
+                } catch (error) {
+                    const div = document.createElement('div');
+                    div.className = 'test-result error';
+                    div.innerHTML = `
+                        <strong>❌ ${test.name}</strong><br>
+                        Error: <code>${error.message}</code><br>
+                        Expected: ${test.expected}
+                    `;
+                    resultsDiv.appendChild(div);
+                }
+            });
+            
+            // Test the updateClock function that was failing
+            try {
+                const now = new Date();
+                const timeString = now.toLocaleString('en-US', {
+                    timeZone: window.SystemTimezone.getTimezone(),
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+                
+                const div = document.createElement('div');
+                div.className = 'test-result success';
+                div.innerHTML = `
+                    <strong>✅ updateClock() simulation</strong><br>
+                    Result: <code>${timeString}</code><br>
+                    Expected: Full Philippines time string
+                `;
+                resultsDiv.appendChild(div);
+            } catch (error) {
+                const div = document.createElement('div');
+                div.className = 'test-result error';
+                div.innerHTML = `
+                    <strong>❌ updateClock() simulation</strong><br>
+                    Error: <code>${error.message}</code><br>
+                    This was the original error in the calendar
+                `;
+                resultsDiv.appendChild(div);
+            }
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

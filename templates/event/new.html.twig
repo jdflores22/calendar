@@ -1,0 +1,1341 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create New Event - TESDA Calendar{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <!-- Enhanced Page Header -->
+    <div class="bg-white shadow-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumbs -->
+            <nav class="flex py-3" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ path('app_dashboard') }}" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <a href="{{ path('app_calendar_index') }}" class="ml-1 text-sm font-medium text-slate-500 hover:text-indigo-600 md:ml-2 transition-colors duration-200">Calendar</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-slate-700 md:ml-2">New Event</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            
+            <!-- Enhanced Page Title -->
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-slate-900">Create New Event</h1>
+                            <p class="mt-1 text-sm text-slate-600">Schedule a new event in the TESDA calendar system</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{{ path('app_calendar_index') }}" class="inline-flex items-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 hover:ring-slate-400 transition-all duration-200">
+                        <svg class="mr-2 -ml-0.5 h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Back to Calendar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Progress Indicator -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between text-sm font-medium text-slate-600">
+                <span class="flex items-center">
+                    <span class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full text-xs font-bold mr-2">1</span>
+                    Event Details
+                </span>
+                <div class="flex-1 mx-4 h-0.5 bg-slate-200 relative">
+                    <div class="absolute inset-0 bg-indigo-600 w-0 transition-all duration-500" id="progressBar"></div>
+                </div>
+                <span class="flex items-center text-slate-400">
+                    <span class="flex items-center justify-center w-8 h-8 bg-slate-200 text-slate-400 rounded-full text-xs font-bold mr-2">2</span>
+                    Review & Save
+                </span>
+            </div>
+        </div>
+
+        <!-- Enhanced 2-Column Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Column 1: Event Creation Form (2/3 width) -->
+            <div class="lg:col-span-2">
+                <div class="bg-white shadow-lg rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                                <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-slate-900">Event Information</h2>
+                                <p class="text-sm text-slate-600">Fill in the details for your new event</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" id="eventForm" class="px-6 py-6" data-validate='{"title":{"required":{"message":"Event title is required"},"minLength":{"value":3,"message":"Title must be at least 3 characters"}},"start":{"required":{"message":"Start date and time is required"}},"end":{"required":{"message":"End date and time is required"}}}'>
+                        <input type="hidden" name="_token" value="{{ csrf_token('event_form') }}">
+                        
+                        <div class="space-y-8">
+                            <!-- Enhanced Title Section -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="title" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Event Title <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" name="title" id="title" required
+                                               value="{{ event.title ?? '' }}"
+                                               placeholder="Enter a descriptive event title..."
+                                               class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 transition-all duration-200 hover:border-slate-400">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="form-error hidden mt-2 text-sm text-red-600" data-error="title">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Description -->
+                                <div>
+                                    <label for="description" class="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+                                    <textarea name="description" id="description" rows="4"
+                                              placeholder="Provide additional details about the event..."
+                                              class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 transition-all duration-200 hover:border-slate-400 resize-none">{{ event.description ?? '' }}</textarea>
+                                    <p class="mt-2 text-xs text-slate-500">Optional: Add more context about the event</p>
+                                </div>
+                            </div>
+
+                            <!-- Enhanced Date & Time Section -->
+                            <div class="bg-slate-50 rounded-lg p-6 border border-slate-200">
+                                <h3 class="text-sm font-semibold text-slate-900 mb-4 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Date & Time
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="start" class="block text-sm font-medium text-slate-700 mb-2">
+                                            Start Date & Time <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="datetime-local" name="start" id="start" required
+                                               value="{{ event.startTime ? event.startTime|ph_datetime_local : '' }}"
+                                               class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 transition-all duration-200 hover:border-slate-400">
+                                        <div class="form-error hidden mt-2 text-sm text-red-600" data-error="start">
+                                            <svg class="w-4 h-4 mr-1 inline" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="end" class="block text-sm font-medium text-slate-700 mb-2">
+                                            End Date & Time <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="datetime-local" name="end" id="end" required
+                                               value="{{ event.endTime ? event.endTime|ph_datetime_local : '' }}"
+                                               class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 transition-all duration-200 hover:border-slate-400">
+                                        <div class="form-error hidden mt-2 text-sm text-red-600" data-error="end">
+                                            <svg class="w-4 h-4 mr-1 inline" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- All Day Toggle -->
+                                <div class="mt-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="allDay" id="allDay" value="1"
+                                               {% if event.allDay %}checked{% endif %}
+                                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded transition-colors duration-200">
+                                        <span class="ml-2 text-sm text-slate-700 font-medium">All Day Event</span>
+                                    </label>
+                                    <p class="mt-1 text-xs text-slate-500 ml-6">Check this if the event lasts the entire day</p>
+                                </div>
+
+                                <!-- Conflict Detection Alert -->
+                                <div id="conflictAlert" class="hidden mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-amber-800">Scheduling Conflict Detected</h3>
+                                            <div class="mt-2 text-sm text-amber-700" id="conflictDetails"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Debug Info (remove in production) -->
+                                <div id="debugInfo" class="hidden mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                                    <h4 class="text-sm font-medium text-gray-800 mb-2">Debug Information</h4>
+                                    <div id="debugContent" class="text-xs text-gray-600 font-mono"></div>
+                                </div>
+                            </div>
+
+                            <!-- Enhanced Office & Location Section -->
+                            <div class="bg-slate-50 rounded-lg p-6 border border-slate-200">
+                                <h3 class="text-sm font-semibold text-slate-900 mb-4 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    Office & Location
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 gap-6">
+                                    <!-- Primary Office Selection -->
+                                    <div>
+                                        <label for="office_id" class="block text-sm font-medium text-slate-700 mb-2">Primary Office</label>
+                                        <select name="office_id" id="office_id"
+                                                class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 transition-all duration-200 hover:border-slate-400 bg-gray-50"
+                                                readonly disabled>
+                                            <option value="">Select primary office</option>
+                                            {% for office in offices %}
+                                                <option value="{{ office.id }}" 
+                                                        data-color="{{ office.color ?? '#3B82F6' }}"
+                                                        data-name="{{ office.name }}"
+                                                        {% if app.user.office and app.user.office.id == office.id %}selected{% endif %}>
+                                                    {{ office.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <input type="hidden" name="office_id" value="{{ app.user.office ? app.user.office.id : '' }}">
+                                        <p class="mt-1 text-xs text-slate-500">
+                                            <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                            </svg>
+                                            Automatically assigned based on event creator's office
+                                        </p>
+                                    </div>
+
+                                    <!-- Tagged Offices Selection -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                                            Tagged Offices
+                                            <span class="text-slate-500 font-normal">(Select all offices involved in this meeting)</span>
+                                        </label>
+                                        <div class="space-y-2 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-white">
+                                            {% for office in offices %}
+                                                <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 transition-colors duration-200 cursor-pointer">
+                                                    <input type="checkbox" 
+                                                           name="tagged_office_ids[]" 
+                                                           value="{{ office.id }}"
+                                                           {% if event.taggedOffices and office in event.taggedOffices %}checked{% endif %}
+                                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded transition-colors duration-200">
+                                                    <div class="w-4 h-4 rounded-full border-2 border-white shadow-sm" style="background-color: {{ office.color ?? '#3B82F6' }};"></div>
+                                                    <div class="flex-1 min-w-0">
+                                                        <span class="text-sm font-medium text-slate-900">{{ office.name }}</span>
+                                                        {% if office.code %}
+                                                            <span class="text-xs text-slate-500 ml-1">({{ office.code }})</span>
+                                                        {% endif %}
+                                                        {% if office.description %}
+                                                            <p class="text-xs text-slate-600 truncate">{{ office.description }}</p>
+                                                        {% endif %}
+                                                    </div>
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="mt-2 text-xs text-slate-500">
+                                            <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                            </svg>
+                                            Tag all offices whose staff will participate in this meeting
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Office Color Display -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Event Color</label>
+                                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-slate-200 shadow-sm">
+                                            <div id="colorDisplay" class="w-8 h-8 rounded-full border-2 border-white shadow-md transition-colors duration-200" style="background-color: {{ app.user.office ? app.user.office.color : '#3B82F6' }};"></div>
+                                            <div class="flex flex-col min-w-0 flex-1">
+                                                <span id="colorLabel" class="text-sm font-medium text-slate-700 truncate">
+                                                    {% if app.user.office %}{{ app.user.office.name }}{% else %}Default Blue{% endif %}
+                                                </span>
+                                                <span id="colorCode" class="text-xs text-slate-500">{{ app.user.office ? app.user.office.color : '#3B82F6' }}</span>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="color" id="color" value="{{ app.user.office ? app.user.office.color : '#3B82F6' }}">
+                                        <p class="mt-1 text-xs text-slate-500">Color is automatically assigned based on the selected office.</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6">
+                                    <label for="location" class="block text-sm font-medium text-slate-700 mb-2">Location</label>
+                                    <div class="relative">
+                                        <input type="text" name="location" id="location"
+                                               value="{{ event.location ?? '' }}"
+                                               placeholder="Enter event location (e.g., Conference Room A, Building 1)"
+                                               class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 pl-10 transition-all duration-200 hover:border-slate-400">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Enhanced Event Tags Section -->
+                            <div class="bg-slate-50 rounded-lg p-6 border border-slate-200">
+                                <h3 class="text-sm font-semibold text-slate-900 mb-4 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    Event Tags
+                                </h3>
+                                
+                                <div>
+                                    <label for="tags" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Tags
+                                        <span class="text-slate-500 font-normal">(Add tags to categorize this event)</span>
+                                    </label>
+                                    
+                                    <!-- Tag Input -->
+                                    <div class="relative">
+                                        <input type="text" 
+                                               id="tagInput" 
+                                               placeholder="Type to add tags (press Enter or comma to add)"
+                                               class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 transition-all duration-200 hover:border-slate-400">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Selected Tags Display -->
+                                    <div id="selectedTags" class="mt-3 flex flex-wrap gap-2 min-h-[2rem]">
+                                        <!-- Tags will be added here dynamically -->
+                                    </div>
+                                    
+                                    <!-- Popular Tags -->
+                                    <div class="mt-4">
+                                        <label class="block text-xs font-medium text-slate-600 mb-2">Popular Tags:</label>
+                                        <div id="popularTags" class="flex flex-wrap gap-2">
+                                            {% if popularTags is defined and popularTags|length > 0 %}
+                                                {% for tagData in popularTags %}
+                                                    <button type="button" class="popular-tag inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-800 transition-colors duration-200" data-tag="{{ tagData[0].name }}">
+                                                        {{ tagData[0].name }}
+                                                        <span class="ml-1 text-xs text-slate-500">({{ tagData.eventCount }})</span>
+                                                    </button>
+                                                {% endfor %}
+                                            {% else %}
+                                                <!-- Default popular tags -->
+                                                <button type="button" class="popular-tag inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-800 transition-colors duration-200" data-tag="meeting">
+                                                    meeting
+                                                </button>
+                                                <button type="button" class="popular-tag inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-800 transition-colors duration-200" data-tag="training">
+                                                    training
+                                                </button>
+                                                <button type="button" class="popular-tag inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-800 transition-colors duration-200" data-tag="workshop">
+                                                    workshop
+                                                </button>
+                                                <button type="button" class="popular-tag inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-800 transition-colors duration-200" data-tag="conference">
+                                                    conference
+                                                </button>
+                                                <button type="button" class="popular-tag inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-800 transition-colors duration-200" data-tag="seminar">
+                                                    seminar
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="mt-2 text-xs text-slate-500">
+                                        <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                        </svg>
+                                        Tags help categorize and filter events. Use keywords like "meeting", "training", "urgent", etc.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Enhanced Priority & Status Section -->
+                            <div class="bg-slate-50 rounded-lg p-6 border border-slate-200">
+                                <h3 class="text-sm font-semibold text-slate-900 mb-4 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Priority & Status
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="priority" class="block text-sm font-medium text-slate-700 mb-2">Priority Level</label>
+                                        <select name="priority" id="priority"
+                                                class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 transition-all duration-200 hover:border-slate-400">
+                                            <option value="low" {% if event.priority == 'low' %}selected{% endif %}>
+                                                Low Priority
+                                            </option>
+                                            <option value="normal" {% if event.priority == 'normal' or not event.priority %}selected{% endif %}>
+                                                Normal Priority
+                                            </option>
+                                            <option value="high" {% if event.priority == 'high' %}selected{% endif %}>
+                                                High Priority
+                                            </option>
+                                            <option value="urgent" {% if event.priority == 'urgent' %}selected{% endif %}>
+                                                Urgent
+                                            </option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="status" class="block text-sm font-medium text-slate-700 mb-2">Event Status</label>
+                                        <select name="status" id="status"
+                                                class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-3 px-4 transition-all duration-200 hover:border-slate-400">
+                                            <option value="confirmed" {% if event.status == 'confirmed' or not event.status %}selected{% endif %}>
+                                                Confirmed
+                                            </option>
+                                            <option value="tentative" {% if event.status == 'tentative' %}selected{% endif %}>
+                                                Tentative
+                                            </option>
+                                            <option value="cancelled" {% if event.status == 'cancelled' %}selected{% endif %}>
+                                                Cancelled
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Enhanced Recurring Event Section -->
+                            <div class="bg-slate-50 rounded-lg p-6 border border-slate-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-sm font-semibold text-slate-900 flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Recurring Event
+                                    </h3>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="isRecurring" id="isRecurring" value="1"
+                                               {% if event.isRecurring %}checked{% endif %}
+                                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded transition-colors duration-200">
+                                        <span class="ml-2 text-sm text-slate-700 font-medium">Enable Recurrence</span>
+                                    </label>
+                                </div>
+
+                                <!-- Recurrence Options -->
+                                <div id="recurrenceOptions" class="{% if not event.isRecurring %}hidden{% endif %} mt-4 p-4 bg-white rounded-lg border border-slate-200">
+                                    <div class="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
+                                        <div>
+                                            <label for="frequency" class="block text-sm font-medium text-slate-700 mb-2">Frequency</label>
+                                            <select name="recurrencePattern[frequency]" id="frequency"
+                                                    class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-2 px-3">
+                                                <option value="daily" {% if event.recurrencePattern.frequency is defined and event.recurrencePattern.frequency == 'daily' %}selected{% endif %}>Daily</option>
+                                                <option value="weekly" {% if event.recurrencePattern.frequency is defined and event.recurrencePattern.frequency == 'weekly' %}selected{% endif %}>Weekly</option>
+                                                <option value="monthly" {% if event.recurrencePattern.frequency is defined and event.recurrencePattern.frequency == 'monthly' %}selected{% endif %}>Monthly</option>
+                                                <option value="yearly" {% if event.recurrencePattern.frequency is defined and event.recurrencePattern.frequency == 'yearly' %}selected{% endif %}>Yearly</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label for="interval" class="block text-sm font-medium text-slate-700 mb-2">Repeat every</label>
+                                            <input type="number" name="recurrencePattern[interval]" id="interval" min="1" value="{{ event.recurrencePattern.interval ?? 1 }}"
+                                                   class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm py-2 px-3">
+                                        </div>
+
+                                        <div id="weekdayOptions" style="display: none;" class="sm:col-span-2">
+                                            <label class="block text-sm font-medium text-slate-700 mb-2">Days of the week</label>
+                                            <div class="flex flex-wrap gap-2">
+                                                {% set weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] %}
+                                                {% for day in weekdays %}
+                                                    <label class="inline-flex items-center bg-white px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors duration-200">
+                                                        <input type="checkbox" name="recurrencePattern[weekdays][]" value="{{ day }}"
+                                                               {% if event.recurrencePattern.weekdays is defined and day in event.recurrencePattern.weekdays %}checked{% endif %}
+                                                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded">
+                                                        <span class="ml-2 text-sm text-slate-700">{{ day|title }}</span>
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <div id="monthlyOptions" style="display: none;" class="sm:col-span-2">
+                                            <label class="block text-sm font-medium text-slate-700 mb-2">Monthly pattern</label>
+                                            <div class="space-y-2">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="recurrencePattern[monthlyType]" value="dayOfMonth"
+                                                           {% if not event.recurrencePattern.monthlyType is defined or event.recurrencePattern.monthlyType == 'dayOfMonth' %}checked{% endif %}
+                                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                                    <span class="ml-2 text-sm text-slate-700">Same day of month</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="recurrencePattern[monthlyType]" value="dayOfWeek"
+                                                           {% if event.recurrencePattern.monthlyType is defined and event.recurrencePattern.monthlyType == 'dayOfWeek' %}checked{% endif %}
+                                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                                    <span class="ml-2 text-sm text-slate-700">Same day of week (e.g., first Monday)</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label class="block text-sm font-medium text-slate-700 mb-2">End condition</label>
+                                            <div class="space-y-3">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="endCondition" value="never" checked
+                                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                                    <span class="ml-2 text-sm text-slate-700">Never ends</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="endCondition" value="count"
+                                                           {% if event.recurrencePattern.count is defined %}checked{% endif %}
+                                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                                    <span class="ml-2 text-sm text-slate-700">After</span>
+                                                    <input type="number" name="recurrencePattern[count]" min="1" value="{{ event.recurrencePattern.count ?? '' }}"
+                                                           class="ml-2 w-20 border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm py-1 px-2">
+                                                    <span class="ml-1 text-sm text-slate-700">occurrences</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="endCondition" value="until"
+                                                           {% if event.recurrencePattern.until is defined %}checked{% endif %}
+                                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                                    <span class="ml-2 text-sm text-slate-700">Until</span>
+                                                    <input type="date" name="recurrencePattern[until]" value="{{ event.recurrencePattern.until ?? '' }}"
+                                                           class="ml-2 border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm py-1 px-2">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Action Buttons -->
+                        <div class="mt-8 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-slate-200">
+                            <a href="{{ path('app_calendar_index') }}" 
+                               class="inline-flex justify-center items-center px-6 py-3 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Cancel
+                            </a>
+                            <button type="submit" id="submitBtn"
+                                    class="inline-flex justify-center items-center px-8 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105">
+                                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span id="submitText">Create Event</span>
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white hidden" id="submitSpinner" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Column 2: Event Preview & Tips (1/3 width) -->
+            <div class="lg:col-span-1">
+                <!-- Event Preview Card -->
+                <div class="bg-white shadow-lg rounded-xl border border-slate-200 overflow-hidden mb-6">
+                    <div class="px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-md">
+                                <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-900">Live Preview</h3>
+                                <p class="text-sm text-slate-600">See how your event will appear</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div id="eventPreview" class="event-card event-card-primary">
+                            <div class="card-body">
+                                <div class="event-status">
+                                    <span class="event-status-upcoming" id="previewStatus">Upcoming</span>
+                                </div>
+                                
+                                <div class="event-time text-sm text-slate-600 mb-2" id="previewTime">
+                                    Select date and time
+                                </div>
+                                
+                                <h3 class="event-title text-lg font-semibold text-slate-900 mb-2" id="previewTitle">
+                                    Event Title
+                                </h3>
+                                
+                                <p class="event-description text-sm text-slate-600 mb-4" id="previewDescription">
+                                    Event description will appear here...
+                                </p>
+                                
+                                <div class="event-meta space-y-2">
+                                    <div class="flex items-center" id="previewLocation" style="display: none;">
+                                        <svg class="w-4 h-4 mr-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span id="previewLocationText"></span>
+                                    </div>
+                                    
+                                    <div class="flex items-center" id="previewOffice">
+                                        <div class="w-3 h-3 rounded-full mr-2" id="previewOfficeColor" style="background-color: #3B82F6;"></div>
+                                        <span id="previewOfficeText">No office selected</span>
+                                    </div>
+                                    
+                                    <div id="previewTaggedOffices" class="hidden">
+                                        <div class="flex items-center mb-2">
+                                            <svg class="w-4 h-4 mr-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                            </svg>
+                                            <span class="text-sm font-medium text-slate-700">Tagged Offices:</span>
+                                        </div>
+                                        <div id="previewTaggedOfficesList" class="flex flex-wrap gap-1"></div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between mt-4">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" id="previewPriority">
+                                                Normal
+                                            </span>
+                                        </div>
+                                        <div id="previewRecurring" class="hidden">
+                                            <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Tips Card -->
+                <div class="bg-white shadow-lg rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg flex items-center justify-center shadow-md">
+                                <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364-.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-900">Quick Tips</h3>
+                                <p class="text-sm text-slate-600">Best practices for events</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
+                                    <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-slate-900">Clear Titles</h4>
+                                    <p class="text-xs text-slate-600">Use descriptive titles that clearly indicate the event's purpose</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+                                    <svg class="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-slate-900">Time Buffers</h4>
+                                    <p class="text-xs text-slate-600">Add 15-30 minutes between events for transitions</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-0.5">
+                                    <svg class="w-3 h-3 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-slate-900">Detailed Descriptions</h4>
+                                    <p class="text-xs text-slate-600">Include agenda, requirements, or preparation notes</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-0.5">
+                                    <svg class="w-3 h-3 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-slate-900">Check Conflicts</h4>
+                                    <p class="text-xs text-slate-600">The system will automatically detect scheduling conflicts</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-4 border-t border-slate-200">
+                            <div class="flex items-center space-x-2 text-xs text-slate-500">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Need help? Contact IT Support</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<script>
+// Enhanced Event Form JavaScript with Live Preview and Validation
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize form elements
+    const form = document.getElementById('eventForm');
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+    const startInput = document.getElementById('start');
+    const endInput = document.getElementById('end');
+    const locationInput = document.getElementById('location');
+    const officeSelect = document.getElementById('office_id');
+    const prioritySelect = document.getElementById('priority');
+    const statusSelect = document.getElementById('status');
+    const allDayCheckbox = document.getElementById('allDay');
+    const isRecurringCheckbox = document.getElementById('isRecurring');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const submitSpinner = document.getElementById('submitSpinner');
+    const progressBar = document.getElementById('progressBar');
+    
+    // Preview elements
+    const previewTitle = document.getElementById('previewTitle');
+    const previewDescription = document.getElementById('previewDescription');
+    const previewTime = document.getElementById('previewTime');
+    const previewLocation = document.getElementById('previewLocation');
+    const previewLocationText = document.getElementById('previewLocationText');
+    const previewOffice = document.getElementById('previewOffice');
+    const previewOfficeText = document.getElementById('previewOfficeText');
+    const previewOfficeColor = document.getElementById('previewOfficeColor');
+    const previewTaggedOffices = document.getElementById('previewTaggedOffices');
+    const previewTaggedOfficesList = document.getElementById('previewTaggedOfficesList');
+    const previewPriority = document.getElementById('previewPriority');
+    const previewStatus = document.getElementById('previewStatus');
+    const previewRecurring = document.getElementById('previewRecurring');
+    
+    // Conflict detection
+    let conflictCheckTimeout;
+    
+    // Priority emoji mapping
+    const priorityEmojis = {
+        'low': 'Low',
+        'normal': 'Normal',
+        'high': 'High',
+        'urgent': 'Urgent'
+    };
+    
+    // Status emoji mapping
+    const statusEmojis = {
+        'confirmed': 'Confirmed',
+        'tentative': 'Tentative',
+        'cancelled': 'Cancelled'
+    };
+    
+    // Update progress bar based on form completion
+    function updateProgress() {
+        const requiredFields = [titleInput, startInput, endInput];
+        const completedFields = requiredFields.filter(field => field.value.trim() !== '').length;
+        const progress = (completedFields / requiredFields.length) * 100;
+        progressBar.style.width = progress + '%';
+    }
+    
+    // Update live preview
+    function updatePreview() {
+        // Update title
+        previewTitle.textContent = titleInput.value || 'Event Title';
+        
+        // Update description
+        previewDescription.textContent = descriptionInput.value || 'Event description will appear here...';
+        
+        // Update time
+        if (startInput.value && endInput.value) {
+            const start = new Date(startInput.value);
+            const end = new Date(endInput.value);
+            const options = { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: allDayCheckbox.checked ? undefined : 'numeric',
+                minute: allDayCheckbox.checked ? undefined : '2-digit'
+            };
+            
+            if (allDayCheckbox.checked) {
+                previewTime.textContent = start.toLocaleDateString('en-US', options);
+            } else {
+                previewTime.textContent = start.toLocaleDateString('en-US', options) + ' - ' + 
+                                        end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            }
+        } else {
+            previewTime.textContent = 'Select date and time';
+        }
+        
+        // Update location
+        if (locationInput.value) {
+            previewLocation.style.display = 'flex';
+            previewLocationText.textContent = locationInput.value;
+        } else {
+            previewLocation.style.display = 'none';
+        }
+        
+        // Update office
+        const selectedOffice = officeSelect.options[officeSelect.selectedIndex];
+        if (selectedOffice && selectedOffice.value) {
+            previewOfficeText.textContent = selectedOffice.text;
+            const color = selectedOffice.dataset.color || '#3B82F6';
+            previewOfficeColor.style.backgroundColor = color;
+            
+            // Update color display in form
+            document.getElementById('colorDisplay').style.backgroundColor = color;
+            document.getElementById('colorLabel').textContent = selectedOffice.text;
+            document.getElementById('colorCode').textContent = color;
+            document.getElementById('color').value = color;
+        } else {
+            previewOfficeText.textContent = 'No office selected';
+            previewOfficeColor.style.backgroundColor = '#3B82F6';
+        }
+        
+        // Update tagged offices
+        const taggedOfficeCheckboxes = document.querySelectorAll('input[name="tagged_office_ids[]"]:checked');
+        if (taggedOfficeCheckboxes.length > 0) {
+            previewTaggedOffices.classList.remove('hidden');
+            previewTaggedOfficesList.innerHTML = '';
+            
+            taggedOfficeCheckboxes.forEach(checkbox => {
+                const officeOption = document.querySelector(`option[value="${checkbox.value}"]`);
+                if (officeOption) {
+                    const badge = document.createElement('span');
+                    badge.className = 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800';
+                    badge.innerHTML = `
+                        <div class="w-2 h-2 rounded-full mr-1" style="background-color: ${officeOption.dataset.color || '#3B82F6'};"></div>
+                        ${officeOption.textContent}
+                    `;
+                    previewTaggedOfficesList.appendChild(badge);
+                }
+            });
+        } else {
+            previewTaggedOffices.classList.add('hidden');
+        }
+        
+        // Update priority
+        previewPriority.textContent = priorityEmojis[prioritySelect.value] || 'Normal';
+        previewPriority.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityClass(prioritySelect.value)}`;
+        
+        // Update status
+        previewStatus.textContent = statusEmojis[statusSelect.value] || 'Upcoming';
+        previewStatus.className = `event-status-${statusSelect.value === 'confirmed' ? 'upcoming' : statusSelect.value}`;
+        
+        // Update recurring indicator
+        if (isRecurringCheckbox.checked) {
+            previewRecurring.classList.remove('hidden');
+        } else {
+            previewRecurring.classList.add('hidden');
+        }
+        
+        updateProgress();
+    }
+    
+    function getPriorityClass(priority) {
+        const classes = {
+            'low': 'bg-green-100 text-green-800',
+            'normal': 'bg-yellow-100 text-yellow-800',
+            'high': 'bg-orange-100 text-orange-800',
+            'urgent': 'bg-red-100 text-red-800'
+        };
+        return classes[priority] || classes.normal;
+    }
+    
+    // Check for scheduling conflicts
+    function checkConflicts() {
+        if (!startInput.value || !endInput.value) return;
+        
+        clearTimeout(conflictCheckTimeout);
+        conflictCheckTimeout = setTimeout(() => {
+            // Get CSRF token from the form
+            const csrfToken = document.querySelector('input[name="_token"]').value;
+            
+            // Show debug info
+            const debugInfo = document.getElementById('debugInfo');
+            const debugContent = document.getElementById('debugContent');
+            debugInfo.classList.remove('hidden');
+            debugContent.innerHTML = `Checking conflicts for: ${startInput.value} to ${endInput.value}`;
+            
+            fetch('/events/api/check-conflicts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                credentials: 'same-origin', // Include session cookies
+                body: JSON.stringify({
+                    start: startInput.value,
+                    end: endInput.value
+                })
+            })
+            .then(response => {
+                console.log('Conflict check response status:', response.status); // Debug log
+                
+                // Update debug info
+                debugContent.innerHTML += `<br>Response status: ${response.status}`;
+                
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Authentication required. Please refresh the page and try again.');
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Conflict check response:', data); // Debug log
+                
+                // Update debug info
+                debugContent.innerHTML += `<br>Response data: ${JSON.stringify(data, null, 2)}`;
+                
+                const conflictAlert = document.getElementById('conflictAlert');
+                const conflictDetails = document.getElementById('conflictDetails');
+                
+                if (data.success && data.has_conflicts) {
+                    conflictAlert.classList.remove('hidden');
+                    
+                    let detailsHtml = data.warning_message || 'There are scheduling conflicts with existing events.';
+                    
+                    if (data.conflicts && data.conflicts.length > 0) {
+                        detailsHtml += '<div class="mt-2 space-y-1">';
+                        data.conflicts.forEach(conflict => {
+                            const startTime = new Date(conflict.start).toLocaleString();
+                            const endTime = new Date(conflict.end).toLocaleTimeString();
+                            detailsHtml += `<div class="text-xs bg-amber-100 p-2 rounded">
+                                <strong>${conflict.title}</strong><br>
+                                ${startTime} - ${endTime}
+                                ${conflict.location ? `<br>${conflict.location}` : ''}
+                            </div>`;
+                        });
+                        detailsHtml += '</div>';
+                    }
+                    
+                    conflictDetails.innerHTML = detailsHtml;
+                } else if (data.success) {
+                    // No conflicts found
+                    conflictAlert.classList.add('hidden');
+                    debugContent.innerHTML += `<br>No conflicts found`;
+                } else {
+                    // API returned success: false
+                    console.warn('Conflict check API returned success: false', data);
+                    conflictAlert.classList.add('hidden');
+                    debugContent.innerHTML += `<br>API returned success: false - ${data.message || 'Unknown error'}`;
+                }
+            })
+            .catch(error => {
+                console.error('Conflict check failed:', error);
+                
+                // Update debug info
+                debugContent.innerHTML += `<br>Error: ${error.message}`;
+                
+                // Show a user-friendly error message
+                const conflictAlert = document.getElementById('conflictAlert');
+                const conflictDetails = document.getElementById('conflictDetails');
+                
+                // Change the alert to a warning style for errors
+                conflictAlert.className = 'mt-4 p-4 bg-red-50 border border-red-200 rounded-lg';
+                conflictAlert.classList.remove('hidden');
+                
+                // Update the icon and styling for error state
+                const alertContent = conflictAlert.querySelector('.flex');
+                if (alertContent) {
+                    alertContent.innerHTML = `
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Conflict Detection Error</h3>
+                            <div class="mt-2 text-sm text-red-700" id="conflictDetails">
+                                ${error.message.includes('Authentication') ? 
+                                    'Please refresh the page and try again. Your session may have expired.' : 
+                                    'Unable to check for conflicts. Please verify your event times manually.'}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Optional: Show toast notification if available
+                if (window.toastManager) {
+                    window.toastManager.warning('Conflict detection temporarily unavailable');
+                }
+            });
+        }, 500);
+    }
+    
+    // Event listeners for live preview
+    titleInput.addEventListener('input', updatePreview);
+    descriptionInput.addEventListener('input', updatePreview);
+    startInput.addEventListener('change', () => {
+        updatePreview();
+        checkConflicts();
+    });
+    endInput.addEventListener('change', () => {
+        updatePreview();
+        checkConflicts();
+    });
+    locationInput.addEventListener('input', updatePreview);
+    officeSelect.addEventListener('change', updatePreview);
+    prioritySelect.addEventListener('change', updatePreview);
+    statusSelect.addEventListener('change', updatePreview);
+    isRecurringCheckbox.addEventListener('change', updatePreview);
+    
+    // Add event listeners for tagged office checkboxes
+    document.querySelectorAll('input[name="tagged_office_ids[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updatePreview);
+    });
+    
+    // All day event handling
+    allDayCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            startInput.type = 'date';
+            endInput.type = 'date';
+        } else {
+            startInput.type = 'datetime-local';
+            endInput.type = 'datetime-local';
+        }
+        updatePreview();
+    });
+    
+    // Recurring event options
+    isRecurringCheckbox.addEventListener('change', function() {
+        const recurrenceOptions = document.getElementById('recurrenceOptions');
+        if (this.checked) {
+            recurrenceOptions.classList.remove('hidden');
+        } else {
+            recurrenceOptions.classList.add('hidden');
+        }
+    });
+    
+    // Handle frequency change for recurrence
+    document.getElementById('frequency').addEventListener('change', function() {
+        const weekdayOptions = document.getElementById('weekdayOptions');
+        const monthlyOptions = document.getElementById('monthlyOptions');
+        
+        weekdayOptions.style.display = 'none';
+        monthlyOptions.style.display = 'none';
+        
+        if (this.value === 'weekly') {
+            weekdayOptions.style.display = 'block';
+        } else if (this.value === 'monthly') {
+            monthlyOptions.style.display = 'block';
+        }
+    });
+    
+    // Handle end condition radio buttons
+    document.querySelectorAll('input[name="endCondition"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            const countInput = document.querySelector('input[name="recurrencePattern[count]"]');
+            const untilInput = document.querySelector('input[name="recurrencePattern[until]"]');
+            
+            countInput.disabled = this.value !== 'count';
+            untilInput.disabled = this.value !== 'until';
+            
+            if (this.value !== 'count') countInput.value = '';
+            if (this.value !== 'until') untilInput.value = '';
+        });
+    });
+    
+    // Enhanced form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitText.textContent = 'Creating Event...';
+        submitSpinner.classList.remove('hidden');
+        
+        // Simulate progress
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = Math.min(progress, 90) + '%';
+        }, 100);
+        
+        // Submit form
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.redirected) {
+                // Handle successful redirect
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                
+                if (window.toastManager) {
+                    window.toastManager.success('Event created successfully!');
+                }
+                
+                setTimeout(() => {
+                    window.location.href = response.url;
+                }, 500);
+            } else {
+                return response.json();
+            }
+        })
+        .then(data => {
+            if (data) {
+                clearInterval(progressInterval);
+                
+                if (data.success) {
+                    progressBar.style.width = '100%';
+                    if (window.toastManager) {
+                        window.toastManager.success(data.message || 'Event created successfully!');
+                    }
+                    
+                    setTimeout(() => {
+                        window.location.href = '/calendar';
+                    }, 1000);
+                } else {
+                    // Handle errors
+                    if (window.toastManager) {
+                        window.toastManager.error(data.message || 'Failed to create event');
+                    }
+                    
+                    // Show field errors
+                    if (data.errors) {
+                        data.errors.forEach(error => {
+                            const errorElement = document.querySelector(`[data-error="${error.property}"]`);
+                            if (errorElement) {
+                                errorElement.textContent = error.message;
+                                errorElement.classList.remove('hidden');
+                            }
+                        });
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            console.error('Form submission error:', error);
+            
+            if (window.toastManager) {
+                window.toastManager.error('An error occurred while creating the event');
+            }
+        })
+        .finally(() => {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitText.textContent = 'Create Event';
+            submitSpinner.classList.add('hidden');
+        });
+    });
+    
+    // Initialize frequency-specific options on page load
+    const frequency = document.getElementById('frequency').value;
+    const weekdayOptions = document.getElementById('weekdayOptions');
+    const monthlyOptions = document.getElementById('monthlyOptions');
+    
+    if (frequency === 'weekly') {
+        weekdayOptions.style.display = 'block';
+    } else if (frequency === 'monthly') {
+        monthlyOptions.style.display = 'block';
+    }
+    
+    // Initialize end condition inputs
+    const selectedEndCondition = document.querySelector('input[name="endCondition"]:checked');
+    if (selectedEndCondition) {
+        selectedEndCondition.dispatchEvent(new Event('change'));
+    }
+    
+    // Initialize preview
+    updatePreview();
+    
+    // Auto-save draft functionality (optional)
+    let draftTimeout;
+    function saveDraft() {
+        clearTimeout(draftTimeout);
+        draftTimeout = setTimeout(() => {
+            const formData = new FormData(form);
+            const draftData = {};
+            for (let [key, value] of formData.entries()) {
+                draftData[key] = value;
+            }
+            localStorage.setItem('eventDraft', JSON.stringify(draftData));
+        }, 2000);
+    }
+    
+    // Load draft on page load
+    const savedDraft = localStorage.getItem('eventDraft');
+    if (savedDraft && !titleInput.value) {
+        try {
+            const draftData = JSON.parse(savedDraft);
+            Object.keys(draftData).forEach(key => {
+                const field = form.querySelector(`[name="${key}"]`);
+                if (field && field.type !== 'hidden') {
+                    field.value = draftData[key];
+                }
+            });
+            updatePreview();
+        } catch (e) {
+            console.warn('Failed to load draft:', e);
+        }
+    }
+    
+    // Save draft on input
+    form.addEventListener('input', saveDraft);
+    
+    // Clear draft on successful submission
+    form.addEventListener('submit', () => {
+        localStorage.removeItem('eventDraft');
+    });
+    
+    // Event Tags Functionality
+    const tagInput = document.getElementById('tagInput');
+    const selectedTagsContainer = document.getElementById('selectedTags');
+    const popularTagButtons = document.querySelectorAll('.popular-tag');
+    let selectedTags = [];
+    
+    // Add tag function
+    function addTag(tagName) {
+        const cleanTag = tagName.trim().toLowerCase();
+        if (cleanTag && !selectedTags.includes(cleanTag)) {
+            selectedTags.push(cleanTag);
+            renderSelectedTags();
+            updateTagInputs();
+        }
+    }
+    
+    // Remove tag function
+    function removeTag(tagName) {
+        const index = selectedTags.indexOf(tagName);
+        if (index > -1) {
+            selectedTags.splice(index, 1);
+            renderSelectedTags();
+            updateTagInputs();
+        }
+    }
+    
+    // Render selected tags
+    function renderSelectedTags() {
+        selectedTagsContainer.innerHTML = '';
+        
+        if (selectedTags.length === 0) {
+            selectedTagsContainer.innerHTML = '<span class="text-sm text-slate-500 italic">No tags selected</span>';
+            return;
+        }
+        
+        selectedTags.forEach(tag => {
+            const tagElement = document.createElement('span');
+            tagElement.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 border border-indigo-200';
+            tagElement.innerHTML = `
+                ${tag}
+                <button type="button" class="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full text-indigo-600 hover:bg-indigo-200 hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200" onclick="removeTag('${tag}')">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            `;
+            selectedTagsContainer.appendChild(tagElement);
+        });
+    }
+    
+    // Update hidden inputs for form submission
+    function updateTagInputs() {
+        // Remove existing tag inputs
+        const existingInputs = form.querySelectorAll('input[name="tags[]"]');
+        existingInputs.forEach(input => input.remove());
+        
+        // Add new tag inputs
+        selectedTags.forEach(tag => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'tags[]';
+            input.value = tag;
+            form.appendChild(input);
+        });
+    }
+    
+    // Handle tag input
+    tagInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const tagName = this.value.trim();
+            if (tagName) {
+                addTag(tagName);
+                this.value = '';
+            }
+        }
+    });
+    
+    // Handle tag input blur
+    tagInput.addEventListener('blur', function() {
+        const tagName = this.value.trim();
+        if (tagName) {
+            addTag(tagName);
+            this.value = '';
+        }
+    });
+    
+    // Handle popular tag clicks
+    popularTagButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tagName = this.getAttribute('data-tag');
+            addTag(tagName);
+        });
+    });
+    
+    // Make removeTag function global
+    window.removeTag = removeTag;
+    
+    // Initialize tags display
+    renderSelectedTags();
+});
+</script>
+{% endblock %}

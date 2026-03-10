@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Office Color Display Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Clean Office Color Display Test</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Office Color Display (Read-Only)</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="testOffice" class="block text-sm font-medium text-gray-700">Office</label>
+                    <div class="relative">
+                        <select id="testOffice" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select an office</option>
+                            <option value="1" data-color="#FF6B6B">Main Office</option>
+                            <option value="2" data-color="#4ECDC4">IT Department</option>
+                            <option value="3" data-color="#45B7D1">HR Department</option>
+                            <option value="4" data-color="#96CEB4">Finance Department</option>
+                            <option value="5" data-color="#FFEAA7">Marketing Department</option>
+                            <option value="6" data-color="#DDA0DD">Operations Department</option>
+                        </select>
+                        <div id="testColorIndicator" class="absolute right-10 top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm hidden"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Color</label>
+                    <div class="mt-1 flex items-center space-x-3">
+                        <div id="testColorDisplay" class="w-12 h-10 rounded-md border-2 border-gray-300 shadow-sm" style="background-color: #3B82F6;"></div>
+                        <div class="flex flex-col">
+                            <span id="testColorLabel" class="text-sm font-medium text-gray-700">Default Blue</span>
+                            <span id="testColorCode" class="text-xs text-gray-500">#3B82F6</span>
+                        </div>
+                    </div>
+                    <!-- Hidden input for form submission -->
+                    <input type="hidden" id="testColorHidden" value="#3B82F6">
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-blue-50 rounded border border-blue-200">
+                <h3 class="font-semibold text-blue-800 mb-2">✅ Clean Color Display Features:</h3>
+                <ul class="list-disc list-inside text-sm text-blue-700 space-y-1">
+                    <li><strong>Read-only color display</strong> - Users cannot edit the color</li>
+                    <li><strong>Clean visual design</strong> - Color swatch with office name and hex code</li>
+                    <li><strong>Automatic updates</strong> - Changes when office is selected</li>
+                    <li><strong>Office name display</strong> - Shows which office's color is being used</li>
+                    <li><strong>Hex code display</strong> - Shows the exact color value</li>
+                    <li><strong>Hidden form input</strong> - Stores color value for backend submission</li>
+                    <li><strong>Dropdown indicator</strong> - Small color dot in office dropdown</li>
+                </ul>
+            </div>
+            
+            <div class="mt-4 p-4 bg-green-50 rounded border border-green-200">
+                <h3 class="font-semibold text-green-800 mb-2">🎨 Design Benefits:</h3>
+                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                    <li>Prevents user confusion about color selection</li>
+                    <li>Maintains office branding consistency</li>
+                    <li>Clean, professional appearance</li>
+                    <li>Clear visual feedback</li>
+                    <li>No accidental color changes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate the clean office color display functionality
+        document.getElementById('testOffice').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const colorHidden = document.getElementById('testColorHidden');
+            const colorDisplay = document.getElementById('testColorDisplay');
+            const colorLabel = document.getElementById('testColorLabel');
+            const colorCode = document.getElementById('testColorCode');
+            const colorIndicator = document.getElementById('testColorIndicator');
+            
+            if (selectedOption.value && selectedOption.getAttribute('data-color')) {
+                const officeColor = selectedOption.getAttribute('data-color');
+                const officeName = selectedOption.textContent;
+                
+                // Update hidden input value
+                colorHidden.value = officeColor;
+                
+                // Update color display
+                colorDisplay.style.backgroundColor = officeColor;
+                colorLabel.textContent = officeName;
+                colorCode.textContent = officeColor.toUpperCase();
+                
+                // Show and update color indicator in dropdown
+                colorIndicator.style.backgroundColor = officeColor;
+                colorIndicator.classList.remove('hidden');
+            } else {
+                // Reset to default color if no office selected
+                const defaultColor = '#3B82F6';
+                colorHidden.value = defaultColor;
+                colorDisplay.style.backgroundColor = defaultColor;
+                colorLabel.textContent = 'Default Blue';
+                colorCode.textContent = defaultColor;
+                colorIndicator.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

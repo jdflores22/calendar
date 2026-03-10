@@ -1,0 +1,15 @@
+<table border="1" style="border-collapse: collapse; margin: 10px 0;">
+<tr><th>Filter</th><th>Result</th><th>Expected</th><th>Status</th></tr>
+<tr>
+    <td>system_time</td>
+    <td><strong>{{ startTime|system_time }}</strong></td>
+    <td>2026-02-12T00:00</td>
+    <td>{% if startTime|system_time == '2026-02-12T00:00' %}✅ PASS{% else %}❌ FAIL{% endif %}</td>
+</tr>
+<tr>
+    <td>system_date</td>
+    <td><strong>{{ startTime|system_date('l, F j, Y g:i A') }}</strong></td>
+    <td>Wednesday, February 12, 2026 12:00 AM</td>
+    <td>{% if '12:00 AM' in startTime|system_date('l, F j, Y g:i A') %}✅ PASS{% else %}❌ FAIL{% endif %}</td>
+</tr>
+</table>

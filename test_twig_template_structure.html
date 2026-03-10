@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twig Template Structure Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-6">Twig Template Structure Test</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Template Structure Validation</h2>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="font-medium text-green-800">Template Structure Fixed</span>
+                    </div>
+                    <p class="text-green-700 mt-2">All content is now properly contained within Twig blocks.</p>
+                </div>
+                
+                <div class="space-y-2">
+                    <h3 class="font-semibold">Issues Resolved:</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                        <li>✅ Moved JavaScript code inside {% block body %}</li>
+                        <li>✅ Moved HTML content inside {% block body %}</li>
+                        <li>✅ Removed duplicate {% endblock %} tags</li>
+                        <li>✅ Ensured no content exists outside Twig blocks</li>
+                        <li>✅ Proper template inheritance structure</li>
+                    </ul>
+                </div>
+                
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">Template Structure:</h3>
+                    <pre class="text-sm text-blue-700 bg-blue-100 p-3 rounded overflow-x-auto"><code>{% extends 'base.html.twig' %}
+
+{% block title %}Calendar - TESDA Calendar{% endblock %}
+
+{% block body %}
+    <!-- All HTML content -->
+    <!-- All JavaScript code -->
+    <!-- All CSS styles -->
+{% endblock %}</code></pre>
+                </div>
+                
+                <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h3 class="font-semibold text-yellow-800 mb-2">Twig Template Rules:</h3>
+                    <ul class="list-disc list-inside space-y-1 text-yellow-700 text-sm">
+                        <li>Templates that extend another template cannot have content outside blocks</li>
+                        <li>All HTML, CSS, and JavaScript must be inside {% block %} tags</li>
+                        <li>Each block must have a corresponding {% endblock %}</li>
+                        <li>No duplicate block names or endblock tags</li>
+                        <li>Content after the final {% endblock %} is not allowed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

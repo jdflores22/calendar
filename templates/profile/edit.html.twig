@@ -1,0 +1,707 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block body %}
+<style>
+    /* Success animation styles */
+    .success-pulse {
+        animation: successPulse 0.6s ease-in-out;
+    }
+    
+    @keyframes successPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); background-color: #dcfce7; }
+        100% { transform: scale(1); }
+    }
+    
+    .flash-message {
+        animation: slideInRight 0.5s ease-out;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .avatar-upload-success {
+        animation: avatarSuccess 0.8s ease-in-out;
+    }
+    
+    @keyframes avatarSuccess {
+        0% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(1.1) rotate(5deg); }
+        50% { transform: scale(1.2) rotate(-5deg); }
+        75% { transform: scale(1.1) rotate(3deg); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+</style>
+
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-gray-900">Edit Profile</h1>
+                    <a href="{{ path('app_profile_show') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="mb-6 rounded-md p-4 {% if type == 'success' %}bg-green-50 border border-green-200{% elseif type == 'error' %}bg-red-50 border border-red-200{% else %}bg-blue-50 border border-blue-200{% endif %} flash-message" 
+                     data-type="{{ type }}" data-message="{{ message|e('html_attr') }}">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            {% if type == 'success' %}
+                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                            {% elseif type == 'error' %}
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                            {% else %}
+                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm {% if type == 'success' %}text-green-800{% elseif type == 'error' %}text-red-800{% else %}text-blue-800{% endif %}">
+                                {{ message }}
+                            </p>
+                        </div>
+                        <div class="ml-3">
+                            <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                    class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <!-- Profile Form -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Profile Information</h2>
+                <p class="mt-1 text-sm text-gray-600">Update your personal information and office assignment.</p>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" class="px-6 py-6">
+                <input type="hidden" name="_token" value="{{ csrf_token('profile_form') }}">
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <!-- Avatar Upload -->
+                    <div class="sm:col-span-6">
+                        <label class="block text-sm font-medium text-gray-700">Profile Photo</label>
+                        <div class="mt-1 flex items-center space-x-5">
+                            {% if profile.avatar %}
+                                <img class="h-20 w-20 rounded-full object-cover" 
+                                     src="{{ asset(profile.avatar) }}" 
+                                     alt="{{ profile.displayName }}"
+                                     id="avatar-preview">
+                                <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center hidden" id="avatar-placeholder">
+                                    <svg class="h-10 w-10 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                </div>
+                            {% else %}
+                                <img class="h-20 w-20 rounded-full object-cover hidden" 
+                                     src="" 
+                                     alt="{{ profile.displayName }}"
+                                     id="avatar-preview">
+                                <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center" id="avatar-placeholder">
+                                    <svg class="h-10 w-10 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <input type="file" 
+                                       name="avatar" 
+                                       id="avatar"
+                                       accept="image/*"
+                                       onchange="previewAvatar(this)"
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <p class="mt-1 text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- First Name -->
+                    <div class="sm:col-span-3">
+                        <label for="first_name" class="block text-sm font-medium text-gray-700">
+                            First Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="first_name" 
+                                   id="first_name" 
+                                   value="{{ profile.firstName ?? '' }}"
+                                   required
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="sm:col-span-3">
+                        <label for="last_name" class="block text-sm font-medium text-gray-700">
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="last_name" 
+                                   id="last_name" 
+                                   value="{{ profile.lastName ?? '' }}"
+                                   required
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+
+                    <!-- Middle Name -->
+                    <div class="sm:col-span-3">
+                        <label for="middle_name" class="block text-sm font-medium text-gray-700">Middle Name</label>
+                        <div class="mt-1">
+                            <input type="text" 
+                                   name="middle_name" 
+                                   id="middle_name" 
+                                   value="{{ profile.middleName ?? '' }}"
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="sm:col-span-3">
+                        <label for="phone" class="block text-sm font-medium text-gray-700">
+                            Phone Number <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            <input type="tel" 
+                                   name="phone" 
+                                   id="phone" 
+                                   value="{{ profile.phone ?? '' }}"
+                                   required
+                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+
+                    <!-- Cluster Selection -->
+                    <div class="sm:col-span-6">
+                        <label for="cluster_id" class="block text-sm font-medium text-gray-700">
+                            Cluster <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            <select name="cluster_id" 
+                                    id="cluster_id" 
+                                    required
+                                    onchange="updateOffices()"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="">Select a cluster...</option>
+                                {% for cluster in clusters %}
+                                    <option value="{{ cluster.id }}" 
+                                            {% if user.office and user.office.cluster and user.office.cluster.id == cluster.id %}selected{% endif %}>
+                                        {{ cluster.name }} ({{ cluster.code }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Office Assignment -->
+                    <div class="sm:col-span-6">
+                        <label for="office_id" class="block text-sm font-medium text-gray-700">
+                            Office Assignment <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            <select name="office_id" 
+                                    id="office_id" 
+                                    required
+                                    onchange="updateDivisions()"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="">Select an office...</option>
+                                {% for cluster in clusters %}
+                                    {% for office in cluster.offices %}
+                                        <option value="{{ office.id }}" 
+                                                data-cluster="{{ cluster.id }}"
+                                                {% if user.office and user.office.id == office.id %}selected{% endif %}>
+                                            {{ office.name }} ({{ office.code }})
+                                        </option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Division Assignment (Optional) -->
+                    <div class="sm:col-span-6">
+                        <label for="division_id" class="block text-sm font-medium text-gray-700">
+                            Division (Optional)
+                        </label>
+                        <div class="mt-1">
+                            <select name="division_id" 
+                                    id="division_id"
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="">No division (Office level only)</option>
+                                {% for cluster in clusters %}
+                                    {% for office in cluster.offices %}
+                                        {% for division in office.divisions %}
+                                            <option value="{{ division.id }}" 
+                                                    data-office="{{ office.id }}"
+                                                    {% if user.division and user.division.id == division.id %}selected{% endif %}>
+                                                {{ division.name }} ({{ division.code }})
+                                            </option>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Select a division only if you belong to a specific division within your office</p>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="sm:col-span-6">
+                        <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                        <div class="mt-1">
+                            <textarea name="address" 
+                                      id="address" 
+                                      rows="3"
+                                      class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">{{ profile.address ?? '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="pt-6 border-t border-gray-200 mt-6">
+                    <div class="flex justify-end space-x-3">
+                        <a href="{{ path('app_profile_show') }}" 
+                           class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                id="submit-button"
+                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="submit-text">Save Changes</span>
+                            <svg id="submit-spinner" class="hidden animate-spin -mr-1 ml-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            // Show error toast instead of alert
+            if (window.showToast) {
+                window.showToast('Please select a valid image file (JPG, PNG, GIF, or WebP)', 'error', 5000);
+            } else {
+                alert('Please select a valid image file (JPG, PNG, GIF, or WebP)');
+            }
+            input.value = '';
+            return;
+        }
+        
+        // Validate file size (5MB)
+        if (file.size > 5242880) {
+            // Show error toast instead of alert
+            if (window.showToast) {
+                window.showToast('File size must be less than 5MB', 'error', 5000);
+            } else {
+                alert('File size must be less than 5MB');
+            }
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Get elements
+            const placeholder = document.getElementById('avatar-placeholder');
+            const preview = document.getElementById('avatar-preview');
+            
+            // Hide placeholder and show preview
+            if (placeholder) {
+                placeholder.style.display = 'none';
+                placeholder.classList.add('hidden');
+            }
+            
+            if (preview) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                preview.classList.remove('hidden');
+                
+                // Add a subtle animation to indicate new image loaded
+                preview.style.transform = 'scale(0.8)';
+                preview.style.transition = 'transform 0.3s ease-out';
+                setTimeout(() => {
+                    preview.style.transform = 'scale(1)';
+                }, 100);
+            }
+            
+            // Show success toast for image preview
+            if (window.showToast) {
+                window.showToast('Image preview loaded successfully', 'success', 3000);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitButton = document.getElementById('submit-button');
+    const submitText = document.getElementById('submit-text');
+    const submitSpinner = document.getElementById('submit-spinner');
+    
+    // Show flash messages as alerts
+    const flashMessages = document.querySelectorAll('.flash-message');
+    flashMessages.forEach(function(flashMessage) {
+        const type = flashMessage.getAttribute('data-type');
+        const message = flashMessage.getAttribute('data-message');
+        
+        if (type === 'success') {
+            // Play success sound
+            playNotificationSound('success');
+            
+            // Add success animation to the form
+            const form = document.querySelector('form');
+            if (form) {
+                form.classList.add('success-pulse');
+                setTimeout(() => form.classList.remove('success-pulse'), 600);
+            }
+            
+            // Update page header to show success
+            const pageHeader = document.querySelector('h1');
+            if (pageHeader) {
+                const originalText = pageHeader.textContent;
+                pageHeader.innerHTML = '✅ Profile Saved Successfully!';
+                pageHeader.style.color = '#059669'; // green color
+                setTimeout(() => {
+                    pageHeader.textContent = originalText;
+                    pageHeader.style.color = ''; // reset color
+                }, 3000);
+            }
+            
+            // Add animation to avatar if it was uploaded
+            if (message.includes('profile picture')) {
+                const avatar = document.getElementById('avatar-preview');
+                if (avatar && avatar.style.display !== 'none') {
+                    avatar.classList.add('avatar-upload-success');
+                    setTimeout(() => avatar.classList.remove('avatar-upload-success'), 800);
+                }
+            }
+            
+            // Show toast notification
+            if (window.showToast) {
+                window.showToast(message, 'success', 6000);
+            } else if (window.TesdaCalendar && window.TesdaCalendar.showNotification) {
+                window.TesdaCalendar.showNotification(message, 'success', 6000);
+            }
+        } else if (type === 'error') {
+            // Play error sound
+            playNotificationSound('error');
+            
+            // Show toast notification
+            if (window.showToast) {
+                window.showToast(message, 'error', 8000);
+            } else if (window.TesdaCalendar && window.TesdaCalendar.showNotification) {
+                window.TesdaCalendar.showNotification(message, 'error', 8000);
+            }
+        }
+    });
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        const errors = [];
+        
+        // Validate required fields
+        const firstName = document.getElementById('first_name').value.trim();
+        const lastName = document.getElementById('last_name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const officeId = document.getElementById('office_id').value;
+        
+        if (!firstName) {
+            errors.push('First name is required');
+            isValid = false;
+        }
+        
+        if (!lastName) {
+            errors.push('Last name is required');
+            isValid = false;
+        }
+        
+        if (!phone) {
+            errors.push('Phone number is required');
+            isValid = false;
+        }
+        
+        if (!officeId) {
+            errors.push('Office assignment is required');
+            isValid = false;
+        }
+        
+        // Validate phone number format
+        if (phone && !/^[\+]?[0-9\s\-\(\)]+$/.test(phone)) {
+            errors.push('Please enter a valid phone number');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            
+            // Show validation errors using toast notification
+            const errorMessage = 'Please fix the following errors:\n\n' + errors.join('\n');
+            if (window.showToast) {
+                window.showToast(errorMessage, 'error', 8000);
+            } else {
+                // Fallback to alert if toast system not available
+                alert('❌ ' + errorMessage);
+            }
+            return false;
+        }
+        
+        // Show confirmation dialog only for avatar uploads
+        const avatarFile = document.getElementById('avatar').files[0];
+        if (avatarFile) {
+            const confirmMessage = 'Upload new profile picture?';
+            if (!confirm(confirmMessage)) {
+                e.preventDefault();
+                return false;
+            }
+        }
+        
+        // Show loading state
+        submitButton.disabled = true;
+        submitText.textContent = avatarFile ? 'Saving Profile & Uploading Image...' : 'Saving Profile...';
+        submitSpinner.classList.remove('hidden');
+        
+        // Show loading notification
+        if (window.TesdaCalendar && window.TesdaCalendar.showLoading) {
+            window.TesdaCalendar.showLoading();
+        }
+        
+        // Re-enable button after 30 seconds as fallback
+        setTimeout(() => {
+            submitButton.disabled = false;
+            submitText.textContent = 'Save Changes';
+            submitSpinner.classList.add('hidden');
+            
+            if (window.TesdaCalendar && window.TesdaCalendar.hideLoading) {
+                window.TesdaCalendar.hideLoading();
+            }
+        }, 30000);
+    });
+    
+    // Real-time validation feedback
+    const requiredFields = ['first_name', 'last_name', 'phone', 'office_id'];
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    this.classList.add('border-red-500');
+                    this.classList.remove('border-gray-300');
+                } else {
+                    this.classList.remove('border-red-500');
+                    this.classList.add('border-gray-300');
+                }
+            });
+        }
+    });
+    
+    // Auto-hide flash messages after 8 seconds
+    setTimeout(function() {
+        flashMessages.forEach(function(flashMessage) {
+            if (flashMessage.parentNode) {
+                flashMessage.style.transition = 'opacity 0.5s ease-out';
+                flashMessage.style.opacity = '0';
+                setTimeout(function() {
+                    if (flashMessage.parentNode) {
+                        flashMessage.remove();
+                    }
+                }, 500);
+            }
+        });
+    }, 8000);
+});
+
+// Sound notification function
+function playNotificationSound(type) {
+    try {
+        // Create audio context
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Create oscillator
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        // Connect nodes
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Configure sound based on type
+        if (type === 'success') {
+            // Success sound: ascending notes
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+        } else if (type === 'error') {
+            // Error sound: descending notes
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(415.30, audioContext.currentTime + 0.1); // G#4
+            oscillator.frequency.setValueAtTime(349.23, audioContext.currentTime + 0.2); // F4
+        }
+        
+        // Set volume envelope
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        // Set wave type
+        oscillator.type = 'sine';
+        
+        // Play sound
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+        
+    } catch (error) {
+        // Fallback: use system beep if available
+        console.log('Audio notification not available:', error);
+    }
+}
+
+// Cascading dropdown functions
+function updateOffices() {
+    const clusterId = document.getElementById('cluster_id').value;
+    const officeSelect = document.getElementById('office_id');
+    const divisionSelect = document.getElementById('division_id');
+    
+    // Store current office value before filtering
+    const currentOfficeId = officeSelect.value;
+    
+    // Show/hide offices based on selected cluster
+    Array.from(officeSelect.options).forEach(option => {
+        if (option.value === '') {
+            option.style.display = 'block';
+            return;
+        }
+        
+        if (option.dataset.cluster === clusterId) {
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    });
+    
+    // Restore office value if it belongs to the selected cluster
+    if (currentOfficeId) {
+        const currentOption = officeSelect.querySelector(`option[value="${currentOfficeId}"]`);
+        if (currentOption && currentOption.dataset.cluster === clusterId) {
+            officeSelect.value = currentOfficeId;
+        } else {
+            officeSelect.value = '';
+        }
+    }
+    
+    // Hide all divisions initially
+    Array.from(divisionSelect.options).forEach(option => {
+        if (option.value !== '') {
+            option.style.display = 'none';
+        }
+    });
+    
+    // If office is still selected, update divisions
+    if (officeSelect.value) {
+        updateDivisions();
+    }
+}
+
+function updateDivisions() {
+    const officeId = document.getElementById('office_id').value;
+    const divisionSelect = document.getElementById('division_id');
+    
+    // Store current division value before filtering
+    const currentDivisionId = divisionSelect.value;
+    
+    // Show/hide divisions based on selected office
+    Array.from(divisionSelect.options).forEach(option => {
+        if (option.value === '') {
+            option.style.display = 'block';
+            return;
+        }
+        
+        if (option.dataset.office === officeId) {
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    });
+    
+    // Restore division value if it belongs to the selected office
+    if (currentDivisionId) {
+        const currentOption = divisionSelect.querySelector(`option[value="${currentDivisionId}"]`);
+        if (currentOption && currentOption.dataset.office === officeId) {
+            divisionSelect.value = currentDivisionId;
+        } else {
+            divisionSelect.value = '';
+        }
+    }
+}
+
+// Initialize dropdowns on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the selected values from the dropdowns
+    const clusterSelect = document.getElementById('cluster_id');
+    const officeSelect = document.getElementById('office_id');
+    const divisionSelect = document.getElementById('division_id');
+    
+    // Find the selected cluster value
+    const selectedCluster = clusterSelect.options[clusterSelect.selectedIndex];
+    const clusterId = selectedCluster ? selectedCluster.value : '';
+    
+    // Find the selected office value
+    const selectedOffice = officeSelect.options[officeSelect.selectedIndex];
+    const officeId = selectedOffice ? selectedOffice.value : '';
+    
+    // If cluster is selected, filter offices
+    if (clusterId) {
+        updateOffices();
+    }
+    
+    // If office is selected, filter divisions
+    if (officeId) {
+        updateDivisions();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+
+<!DOCTYPE html>
+<html>
+<head><title>Twig Filter Test</title></head>
+<body>
+<h1>Twig Filter Test</h1>
+<p>Testing Event 76 timezone conversion:</p>
+<table border="1">
+<tr><th>Filter</th><th>Result</th></tr>
+<tr><td>Raw startTime</td><td>{{ event.startTime.format("Y-m-d H:i:s") }}</td></tr>
+<tr><td>system_date filter</td><td>{{ event.startTime|system_date("Y-m-d H:i:s") }}</td></tr>
+<tr><td>system_time filter</td><td>{{ event.startTime|system_time }}</td></tr>
+<tr><td>system_date with format</td><td>{{ event.startTime|system_date("l, F j, Y g:i A") }}</td></tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Date Test</title>
+</head>
+<body>
+    <h1>February 1, 2026 Date Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const feb1_2026 = new Date(2026, 1, 1); // Month is 0-indexed, so 1 = February
+        const dayOfWeek = feb1_2026.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        
+        document.getElementById('results').innerHTML = `
+            <p>February 1, 2026 is a <strong>${dayNames[dayOfWeek]}</strong></p>
+            <p>Raw day value: ${dayOfWeek}</p>
+            <p>Date object: ${feb1_2026}</p>
+        `;
+    </script>
+</body>
+</html>

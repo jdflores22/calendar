@@ -1,0 +1,260 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Security Dashboard{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-2xl font-bold text-gray-900">Security Dashboard</h1>
+                <div class="flex items-center space-x-4">
+                    <button id="refreshBtn" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <a href="{{ path('app_dashboard') }}" class="text-blue-600 hover:text-blue-800">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Security Score Card -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Security Score</h2>
+            </div>
+            <div class="px-6 py-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            {% set score = dashboard_data.security_score.score %}
+                            {% set level = dashboard_data.security_score.level %}
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-lg
+                                {% if level == 'EXCELLENT' %}bg-green-500
+                                {% elseif level == 'GOOD' %}bg-blue-500
+                                {% elseif level == 'FAIR' %}bg-yellow-500
+                                {% elseif level == 'POOR' %}bg-orange-500
+                                {% else %}bg-red-500{% endif %}">
+                                {{ score }}
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">{{ level }}</h3>
+                            <p class="text-sm text-gray-500">Security Level</p>
+                            <p class="text-xs text-gray-400">{{ dashboard_data.security_score.total_events }} events in last 24h</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        {% if dashboard_data.security_score.recommendations %}
+                            <h4 class="text-sm font-medium text-gray-900 mb-2">Recommendations:</h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                {% for recommendation in dashboard_data.security_score.recommendations %}
+                                    <li>• {{ recommendation }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Alerts -->
+        {% if dashboard_data.active_alerts %}
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900 flex items-center">
+                    <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Active Security Alerts
+                </h2>
+            </div>
+            <div class="px-6 py-6">
+                <div class="space-y-4">
+                    {% for alert in dashboard_data.active_alerts %}
+                        <div class="border-l-4 p-4 rounded-md
+                            {% if alert.severity == 'CRITICAL' %}border-red-500 bg-red-50
+                            {% elseif alert.severity == 'HIGH' %}border-orange-500 bg-orange-50
+                            {% elseif alert.severity == 'MEDIUM' %}border-yellow-500 bg-yellow-50
+                            {% else %}border-blue-500 bg-blue-50{% endif %}">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">{{ alert.type|replace('_', ' ')|title }}</h3>
+                                    <p class="text-sm text-gray-600">{{ alert.message }}</p>
+                                    <p class="text-xs text-gray-500 mt-1">{{ alert.created_at|date('Y-m-d H:i:s') }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if alert.severity == 'CRITICAL' %}bg-red-100 text-red-800
+                                        {% elseif alert.severity == 'HIGH' %}bg-orange-100 text-orange-800
+                                        {% elseif alert.severity == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                        {{ alert.severity }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Statistics Grid -->
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+            <!-- Event Counts -->
+            {% for event_type, count in dashboard_data.event_counts %}
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-gray-500 rounded-md flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">{{ event_type|replace('_', ' ')|title }}</dt>
+                                    <dd class="text-lg font-medium text-gray-900">{{ count }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Top Threats and Suspicious IPs -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
+            <!-- Top Threats -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Top Security Threats</h2>
+                </div>
+                <div class="px-6 py-6">
+                    {% if dashboard_data.top_threats %}
+                        <div class="space-y-4">
+                            {% for threat in dashboard_data.top_threats %}
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">{{ threat.type|replace('_', ' ')|title }}</h3>
+                                        <p class="text-xs text-gray-500">IP: {{ threat.ip }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-sm font-medium text-gray-900">{{ threat.count }}</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2
+                                            {% if threat.severity == 'CRITICAL' %}bg-red-100 text-red-800
+                                            {% elseif threat.severity == 'HIGH' %}bg-orange-100 text-orange-800
+                                            {% elseif threat.severity == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                                            {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                            {{ threat.severity }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-500">No significant threats detected in the last 24 hours.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Suspicious IPs -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Suspicious IP Addresses</h2>
+                </div>
+                <div class="px-6 py-6">
+                    {% if dashboard_data.suspicious_ips %}
+                        <div class="space-y-4">
+                            {% for ip_data in dashboard_data.suspicious_ips %}
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">{{ ip_data.ip }}</h3>
+                                        <p class="text-xs text-gray-500">{{ ip_data.location }}</p>
+                                        {% if ip_data.last_activity %}
+                                            <p class="text-xs text-gray-400">Last: {{ ip_data.last_activity|date('Y-m-d H:i') }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-sm font-medium text-gray-900">{{ ip_data.event_count }} events</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2
+                                            {% if ip_data.risk_level == 'CRITICAL' %}bg-red-100 text-red-800
+                                            {% elseif ip_data.risk_level == 'HIGH' %}bg-orange-100 text-orange-800
+                                            {% elseif ip_data.risk_level == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                                            {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                            {{ ip_data.risk_level }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-500">No suspicious IP addresses detected in the last 24 hours.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Security Events -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-medium text-gray-900">Recent Security Events</h2>
+                    <a href="{{ path('app_security_events') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                        View All Events
+                    </a>
+                </div>
+            </div>
+            <div class="px-6 py-6">
+                {% if dashboard_data.recent_events %}
+                    <div class="space-y-4">
+                        {% for event in dashboard_data.recent_events|slice(0, 10) %}
+                            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-medium text-gray-900">{{ event.description }}</h3>
+                                    <div class="flex items-center space-x-4 mt-1">
+                                        <p class="text-xs text-gray-500">{{ event.createdAt|ph_date('Y-m-d H:i:s') }}</p>
+                                        {% if event.ipAddress %}
+                                            <p class="text-xs text-gray-500">IP: {{ event.ipAddress }}</p>
+                                        {% endif %}
+                                        {% if event.user %}
+                                            <p class="text-xs text-gray-500">User: {{ event.user.email }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        {{ event.action }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-gray-500">No recent security events.</p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+document.getElementById('refreshBtn').addEventListener('click', function() {
+    location.reload();
+});
+
+// Auto-refresh every 5 minutes
+setInterval(function() {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

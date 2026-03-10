@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Philippines Timezone Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Calendar Philippines Timezone Test</h1>
+    
+    <div class="test-section">
+        <h3>Browser Information</h3>
+        <div id="browser-info"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Current Time Comparison</h3>
+        <div id="time-comparison"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Philippines Timezone Conversion Test</h3>
+        <div id="timezone-test"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Event Time Formatting Test</h3>
+        <div id="event-time-test"></div>
+    </div>
+    
+    <script>
+        // Display browser information
+        const browserInfo = document.getElementById('browser-info');
+        const now = new Date();
+        browserInfo.innerHTML = `
+            <div class="result">
+                <strong>Browser Timezone:</strong> ${Intl.DateTimeFormat().resolvedOptions().timeZone}<br>
+                <strong>Timezone Offset:</strong> ${now.getTimezoneOffset()} minutes<br>
+                <strong>Current Browser Time:</strong> ${now.toLocaleString()}<br>
+            </div>
+        `;
+        
+        // Time comparison
+        const timeComparison = document.getElementById('time-comparison');
+        const browserTime = now.toLocaleString();
+        const philippinesTime = now.toLocaleString('en-US', {
+            timeZone: 'Asia/Manila',
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        
+        timeComparison.innerHTML = `
+            <div class="result">
+                <strong>Browser Local Time:</strong> ${browserTime}<br>
+                <strong>Philippines Time (Asia/Manila):</strong> ${philippinesTime}<br>
+            </div>
+        `;
+        
+        // Philippines timezone conversion test
+        const timezoneTest = document.getElementById('timezone-test');
+        const testUtcTime = new Date('2026-02-12T00:01:00Z'); // Event 76 UTC time
+        const convertedPhilippines = testUtcTime.toLocaleString('en-US', {
+            timeZone: 'Asia/Manila',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+        
+        const expectedTime = '02/12/2026, 08:01 AM';
+        const isCorrect = convertedPhilippines === expectedTime;
+        
+        timezoneTest.innerHTML = `
+            <div class="result ${isCorrect ? 'success' : 'error'}">
+                <strong>Test UTC Time:</strong> 2026-02-12T00:01:00Z (Event 76)<br>
+                <strong>Converted to Philippines:</strong> ${convertedPhilippines}<br>
+                <strong>Expected:</strong> ${expectedTime}<br>
+                <strong>Result:</strong> ${isCorrect ? '✅ CORRECT' : '❌ INCORRECT'}
+            </div>
+        `;
+        
+        // Event time formatting test (like calendar does)
+        const eventTimeTest = document.getElementById('event-time-test');
+        
+        // Test the same conversion method used in calendar
+        const testNow = new Date();
+        const philippinesTimeForDefault = new Date(testNow.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+        const currentDate = philippinesTimeForDefault.toISOString().split('T')[0];
+        const currentTime = philippinesTimeForDefault.toTimeString().slice(0, 5);
+        
+        eventTimeTest.innerHTML = `
+            <div class="result">
+                <strong>Current Philippines Date:</strong> ${currentDate}<br>
+                <strong>Current Philippines Time:</strong> ${currentTime}<br>
+                <strong>For datetime-local input:</strong> ${currentDate}T${currentTime}<br>
+            </div>
+        `;
+        
+        // Test FullCalendar timezone setting
+        console.log('=== Calendar Timezone Test ===');
+        console.log('Browser timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+        console.log('Philippines time:', philippinesTime);
+        console.log('Event 76 conversion test:', isCorrect ? 'PASSED' : 'FAILED');
+    </script>
+</body>
+</html>
