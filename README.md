@@ -36,72 +36,122 @@ A comprehensive calendar management system built with Symfony for TESDA COROPOTI
 
 ## Technology Stack
 
-- **Backend**: Symfony 7.x (PHP)
-- **Database**: MySQL/MariaDB
-- **Frontend**: Twig templates with Tailwind CSS
-- **JavaScript**: Vanilla JS with Stimulus
+- **Backend**: Symfony 8.0 (PHP 8.4+)
+- **Database**: MySQL 8.0+ / MariaDB 10.4+
+- **Frontend**: Twig templates with Tailwind CSS 3.4
+- **JavaScript**: 
+  - Vanilla JS with Stimulus 3.2
+  - FullCalendar 6.1 for calendar views
+  - Alpine.js 3.13 for reactive components
+- **Build Tools**: 
+  - Webpack Encore 5.1 for asset compilation
+  - PostCSS with Autoprefixer
+  - Babel for JavaScript transpilation
 - **Authentication**: Symfony Security Component
 - **File Handling**: Symfony File Upload Component
+- **Security**: Nelmio Security Bundle for enhanced protection
 
 ## Installation
 
 ### Prerequisites
-- PHP 8.1 or higher
-- Composer
-- MySQL/MariaDB
-- Node.js and npm (for asset compilation)
+- **PHP 8.4 or higher** with extensions:
+  - `ext-ctype`
+  - `ext-iconv`
+  - `ext-pdo_mysql` (for MySQL database)
+- **Composer** (PHP dependency manager)
+- **MySQL 8.0+ or MariaDB 10.4+**
+- **Node.js 18+ and npm** (for asset compilation)
+- **Symfony CLI** (recommended) - Install from https://symfony.com/download
+
+### System Requirements
+- **Memory**: Minimum 512MB RAM (2GB+ recommended)
+- **Storage**: At least 1GB free space
+- **Web Server**: Apache 2.4+ or Nginx 1.18+
 
 ### Setup Steps
 
-1. **Clone the repository**
+1. **Install Symfony CLI (recommended)**
+   ```bash
+   # On Windows (using Scoop)
+   scoop install symfony-cli
+   
+   # On macOS (using Homebrew)
+   brew install symfony-cli/tap/symfony-cli
+   
+   # On Linux
+   wget https://get.symfony.com/cli/installer -O - | bash
+   ```
+
+2. **Clone the repository**
    ```bash
    git clone https://github.com/jdflores22/calendar.git
    cd calendar
    ```
 
-2. **Install PHP dependencies**
+3. **Install PHP dependencies**
    ```bash
    composer install
    ```
 
-3. **Install JavaScript dependencies**
+4. **Install JavaScript dependencies**
    ```bash
    npm install
    ```
 
-4. **Configure environment**
+5. **Configure environment**
    ```bash
    cp .env .env.local
    ```
    Edit `.env.local` with your database credentials:
-   ```
+   ```env
    DATABASE_URL="mysql://username:password@127.0.0.1:3306/calendar_db"
+   APP_SECRET=your-32-character-secret-key
    ```
 
-5. **Create database and run migrations**
+6. **Create database and run migrations**
    ```bash
    php bin/console doctrine:database:create
    php bin/console doctrine:migrations:migrate
    ```
 
-6. **Load initial data (optional)**
+7. **Load initial data (optional)**
    ```bash
    php bin/console app:seed-initial-data
    ```
 
-7. **Build assets**
+8. **Build assets**
    ```bash
    npm run build
    ```
-
-8. **Start the development server**
+   For development with auto-reload:
    ```bash
-   symfony server:start
+   npm run watch
    ```
-   Or use PHP built-in server:
+
+9. **Start the development server**
    ```bash
+   # Using Symfony CLI (recommended)
+   symfony server:start
+   
+   # Or using PHP built-in server
    php -S localhost:8000 -t public/
    ```
+
+### Verify Installation
+
+1. Visit `http://localhost:8000` to see the public calendar
+2. Click "Staff Login" to access the admin interface
+3. Check that assets are loading correctly (CSS/JS)
+
+### Troubleshooting
+
+**Common Issues:**
+
+- **PHP version error**: Ensure PHP 8.4+ is installed and active
+- **Database connection**: Verify MySQL/MariaDB is running and credentials are correct
+- **Asset compilation**: Run `npm run build` if styles/scripts aren't loading
+- **File permissions**: Ensure `var/` and `public/uploads/` are writable
+- **Memory limit**: Increase PHP memory limit if needed (`memory_limit = 512M`)
 
 ## Usage
 
@@ -214,11 +264,17 @@ php bin/console doctrine:migrations:migrate
 
 ### Asset Development
 ```bash
-# Watch for changes
+# Development mode with file watching
 npm run watch
 
-# Build for production
+# Development build
+npm run dev
+
+# Production build with optimization
 npm run build
+
+# Development server with hot reload
+npm run dev-server
 ```
 
 ## Deployment
@@ -251,7 +307,10 @@ npm run build
    ```bash
    chmod -R 755 var/
    chmod -R 755 public/uploads/
+   chmod -R 755 public/build/
    ```
+
+6. **Configure web server** (see Web Server Configuration below)
 
 ### Web Server Configuration
 
