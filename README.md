@@ -38,7 +38,10 @@ A comprehensive calendar management system built with Symfony for TESDA COROPOTI
 
 - **Backend**: Symfony 8.0 (PHP 8.4+)
 - **Database**: MySQL 8.0+ / MariaDB 10.4+
-- **Frontend**: Twig templates with Tailwind CSS 3.4
+- **Frontend**: 
+  - Twig templates with Tailwind CSS 3.4
+  - Custom TESDA theme with pre-built components
+  - PostCSS with Autoprefixer for CSS processing
 - **JavaScript**: 
   - Vanilla JS with Stimulus 3.2
   - FullCalendar 6.1 for calendar views
@@ -128,14 +131,27 @@ A comprehensive calendar management system built with Symfony for TESDA COROPOTI
    npm run watch
    ```
 
-9. **Start the development server**
+9. **Configure Tailwind CSS (if needed)**
+   The project comes with Tailwind CSS pre-configured. If you need to customize:
    ```bash
-   # Using Symfony CLI (recommended)
-   symfony server:start
-   
-   # Or using PHP built-in server
-   php -S localhost:8000 -t public/
+   # Generate Tailwind config (optional)
+   npx tailwindcss init -p
    ```
+   
+   The main CSS file (`assets/styles/app.css`) includes:
+   - Tailwind base, components, and utilities
+   - Custom TESDA theme variables
+   - Pre-built component classes (buttons, cards, forms, etc.)
+   - Dark theme support
+
+10. **Start the development server**
+    ```bash
+    # Using Symfony CLI (recommended)
+    symfony server:start
+    
+    # Or using PHP built-in server
+    php -S localhost:8000 -t public/
+    ```
 
 ### Verify Installation
 
@@ -150,8 +166,16 @@ A comprehensive calendar management system built with Symfony for TESDA COROPOTI
 - **PHP version error**: Ensure PHP 8.4+ is installed and active
 - **Database connection**: Verify MySQL/MariaDB is running and credentials are correct
 - **Asset compilation**: Run `npm run build` if styles/scripts aren't loading
+- **Tailwind CSS not working**: Ensure PostCSS is processing correctly with `npm run watch`
 - **File permissions**: Ensure `var/` and `public/uploads/` are writable
 - **Memory limit**: Increase PHP memory limit if needed (`memory_limit = 512M`)
+- **Node.js version**: Ensure Node.js 18+ is installed for proper Webpack Encore support
+
+**Tailwind CSS Development:**
+- Use `npm run watch` during development for live CSS compilation
+- Custom components are defined in `assets/styles/app.css`
+- TESDA theme variables are available as CSS custom properties
+- Dark theme support is built-in with `[data-theme="dark"]` attribute
 
 ## Usage
 
@@ -195,6 +219,40 @@ Administrators can:
 - Assign office colors for visual organization
 - Manage divisions within offices
 - Set up office hierarchies
+
+## Customization
+
+### Tailwind CSS Theme
+
+The system includes a comprehensive custom theme built on Tailwind CSS:
+
+#### Custom Components Available:
+- **Buttons**: `.btn-primary`, `.btn-secondary`, `.btn-success`, `.btn-danger`, etc.
+- **Cards**: `.card`, `.card-hover`, `.card-elevated`, `.card-glass`
+- **Forms**: `.form-input`, `.form-select`, `.form-checkbox`, `.form-label`
+- **Badges**: `.badge-primary`, `.badge-success`, `.badge-warning`, `.badge-danger`
+- **Alerts**: `.alert-success`, `.alert-error`, `.alert-warning`, `.alert-info`
+- **Tables**: `.datatable`, `.table`, `.table-header`, `.table-row`
+- **Modals**: `.modal-overlay`, `.modal-container`, `.modal-header`
+- **Loading**: `.spinner`, `.skeleton`, `.loading-overlay`
+
+#### TESDA Color Palette:
+```css
+--tesda-primary: #1e40af (Blue)
+--tesda-secondary: #059669 (Green)
+--tesda-accent: #dc2626 (Red)
+--tesda-warning: #d97706 (Orange)
+```
+
+#### Dark Theme Support:
+Add `data-theme="dark"` to the `<html>` element to enable dark mode.
+
+### Customizing Styles
+
+1. **Edit the main CSS file**: `assets/styles/app.css`
+2. **Add custom components** in the `@layer components` section
+3. **Modify theme variables** in the `:root` selector
+4. **Rebuild assets**: `npm run build` or `npm run watch`
 
 ## Configuration
 
